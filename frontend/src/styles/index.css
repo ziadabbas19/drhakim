@@ -1,0 +1,49 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Cairo', ui-sans-serif, system-ui, 'Segoe UI', Tahoma, sans-serif;
+
+  --color-brand-50: #effcfc;
+  --color-brand-100: #d6f5f5;
+  --color-brand-200: #b0eaec;
+  --color-brand-300: #7ad8de;
+  --color-brand-400: #3dbcc7;
+  --color-brand-500: #21a0ad;
+  --color-brand-600: #1c8193;
+  --color-brand-700: #1c6878;
+  --color-brand-800: #1e5563;
+  --color-brand-900: #1d4854;
+  --color-brand-950: #0d2f39;
+
+  --shadow-soft: 0 10px 40px -12px rgb(13 47 57 / 0.18);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply min-h-dvh bg-white font-sans text-slate-800 antialiased;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-500;
+  }
+
+  input[type='time'],
+  input[type='date'] {
+    @apply text-start;
+  }
+
+  dialog::backdrop {
+    @apply bg-slate-950/50 backdrop-blur-sm;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}

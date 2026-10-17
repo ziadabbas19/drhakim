@@ -1,0 +1,14 @@
+import { Container } from './Container.jsx';
+import { Eyebrow } from './Eyebrow.jsx';
+import { GlowBlob } from './GlowBlob.jsx';
+
+export const PageHeader = ({ eyebrow, title, description }) => (
+  <div className="relative overflow-hidden bg-linear-to-b from-brand-50 to-white">
+    <GlowBlob className="-top-24 -inset-s-24" />
+    <Container className="relative space-y-4 py-12 sm:py-16">
+      {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+      <h1 className="text-3xl font-extrabold text-brand-950 sm:text-4xl">{title}</h1>
+      {description && <p className="max-w-2xl text-lg leading-relaxed text-slate-600">{description}</p>}
+    </Container>
+  </div>
+);
