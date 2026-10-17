@@ -4,48 +4,52 @@ import { Card } from '../../components/Card.jsx';
 import { DetailList } from '../../components/DetailList.jsx';
 import { Icon } from '../../components/Icon.jsx';
 import { PATHS } from '../../config/navigation.js';
+import { useFormat } from '../../hooks/useFormat.js';
+import { useI18n } from '../../hooks/useI18n.js';
 import { useToast } from '../../hooks/useToast.js';
-import { formatDate, formatTime } from '../../utils/date.js';
+import { Reveal } from '../../motion/Reveal.jsx';
 import { clinicLabel } from '../clinics/clinicLabel.js';
 import { WhatsAppCta } from '../settings/WhatsAppCta.jsx';
 
 export const BookingConfirmation = ({ booking, onNewBooking }) => {
+  const { t } = useI18n();
+  const format = useFormat();
   const toast = useToast();
 
   const copyReference = () =>
     Promise.resolve()
       .then(() => navigator.clipboard.writeText(booking.referenceCode))
       .then(
-        () => toast.success('تم نسخ رقم الحجز'),
-        () => toast.error('تعذر النسخ، يمكنك كتابة الرقم يدويًا'),
+        () => toast.success(t('booking.confirmation.copied')),
+        () => toast.error(t('booking.confirmation.copyFailed')),
       );
 
   const details = [
-    { label: 'العيادة', value: clinicLabel(booking.clinic) },
-    { label: 'العنوان', value: booking.clinic.address },
-    { label: 'اليوم', value: formatDate(booking.date) },
-    { label: 'الموعد', value: formatTime(booking.time) },
-    { label: 'اسم المريض', value: booking.patientName },
-    { label: 'رقم الموبايل', value: booking.phone, ltr: true },
+    { label: t('booking.confirmation.clinic'), value: clinicLabel(booking.clinic) },
+    { label: t('booking.confirmation.address'), value: booking.clinic.address },
+    { label: t('booking.confirmation.day'), value: format.date(booking.date) },
+    { label: t('booking.confirmation.time'), value: format.time(booking.time) },
+    { label: t('booking.confirmation.patient'), value: booking.patientName },
+    { label: t('booking.confirmation.mobile'), value: booking.phone, ltr: true },
   ];
 
   return (
-    <Card className="space-y-6">
+    <Reveal as={Card} variant="scale" className="space-y-6">
       <div className="space-y-3 text-center">
-        <span className="mx-auto grid size-16 place-items-center rounded-full bg-emerald-100 text-emerald-700">
+        <span className="mx-auto grid size-16 place-items-center rounded-full bg-success-soft text-success-ink">
           <Icon name="check" className="size-9" />
         </span>
-        <h2 className="text-2xl font-extrabold text-brand-950">تم تسجيل حجزك بنجاح</h2>
-        <p className="text-slate-600">احتفظ برقم الحجز، وستتواصل معك العيادة قريبًا لتأكيد الموعد.</p>
+        <h2 className="text-2xl font-extrabold text-ink-strong">{t('booking.confirmation.title')}</h2>
+        <p className="text-ink-muted">{t('booking.confirmation.description')}</p>
       </div>
 
-      <div className="space-y-2 rounded-2xl border-2 border-dashed border-brand-200 bg-brand-50 p-5 text-center">
-        <p className="text-sm font-bold text-brand-700">رقم الحجز</p>
-        <p dir="ltr" className="text-3xl font-extrabold tracking-widest text-brand-950">
+      <div className="space-y-2 rounded-2xl border-2 border-dashed border-primary-line bg-primary-faint p-5 text-center">
+        <p className="text-sm font-bold text-primary-ink">{t('booking.confirmation.reference')}</p>
+        <p dir="ltr" className="text-3xl font-extrabold tracking-widest text-ink-strong">
           {booking.referenceCode}
         </p>
         <Button variant="ghost" size="sm" icon="copy" onClick={copyReference}>
-          نسخ الرقم
+          {t('booking.confirmation.copy')}
         </Button>
       </div>
 
@@ -53,13 +57,13 @@ export const BookingConfirmation = ({ booking, onNewBooking }) => {
 
       <div className="flex flex-wrap justify-center gap-3">
         <Button as={Link} to={PATHS.home} icon="arrowBack">
-          العودة للرئيسية
+          {t('booking.confirmation.backHome')}
         </Button>
         <Button variant="secondary" icon="plus" onClick={onNewBooking}>
-          حجز موعد آخر
+          {t('booking.confirmation.another')}
         </Button>
-        <WhatsAppCta>تواصل مع العيادة</WhatsAppCta>
+        <WhatsAppCta>{t('contact.contactClinic')}</WhatsAppCta>
       </div>
-    </Card>
+    </Reveal>
   );
 };

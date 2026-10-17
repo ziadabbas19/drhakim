@@ -1,6 +1,9 @@
 import { client } from './client.js';
 
 export const publicApi = {
+  about: {
+    get: () => client.get('/about'),
+  },
   clinics: {
     list: () => client.get('/clinics'),
     availableDates: (clinicId) => client.get(`/clinics/${clinicId}/available-dates`),
@@ -14,5 +17,11 @@ export const publicApi = {
   },
   settings: {
     get: () => client.get('/settings'),
+  },
+  reviews: {
+    list: (params) => client.get('/reviews', { params }),
+    highlights: (limit) => client.get('/reviews/highlights', { params: { limit } }),
+    summary: () => client.get('/reviews/summary'),
+    create: (review) => client.post('/reviews', review),
   },
 };

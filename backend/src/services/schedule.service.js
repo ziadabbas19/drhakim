@@ -1,4 +1,4 @@
-import { messages } from '../config/messages.js';
+import { messages } from '../i18n/index.js';
 import { ClinicSchedule, sequelize } from '../models/index.js';
 import { ApiError } from '../utils/ApiError.js';
 import { compareByStartTime, getWeekdayName, toMinutes } from '../utils/date.js';
@@ -12,7 +12,10 @@ const assertNoOverlaps = (ranges) => {
     const overlaps = sorted.some(
       (range, index) => index > 0 && toMinutes(range.startTime) < toMinutes(sorted[index - 1].endTime),
     );
-    if (overlaps) throw ApiError.badRequest(messages.clinic.scheduleOverlap(getWeekdayName(dayOfWeek)));
+    if (overlaps) {
+      const day = (lang) => getWeekdayName(dayOfWeek, lang);
+      throw ApiError.badRequest(messages.clinic.scheduleOverlap, null, { day });
+    }
   }
 };
 

@@ -1,32 +1,65 @@
 import { dashboardApi } from '../../../api/dashboard.js';
+import { BilingualField } from '../../../components/BilingualField.jsx';
 import { CheckboxField, FormField } from '../../../components/FormField.jsx';
 import { FormModal } from '../../../components/FormModal.jsx';
 import { IconTile } from '../../../components/IconTile.jsx';
-import { SERVICE_ICON_OPTIONS } from '../../../config/constants.js';
+import { OPTION_GROUPS } from '../../../config/constants.js';
+import { emptyMediaValues, withMediaIds } from '../../../config/mediaSlots.js';
+import { PERMISSIONS } from '../../../config/permissions.js';
+import { useAuth } from '../../../hooks/useAuth.js';
+import { useI18n } from '../../../hooks/useI18n.js';
+import { useOptions } from '../../../hooks/useOptions.js';
 import { useSubmitForm } from '../../../hooks/useSubmitForm.js';
 import { pickValues } from '../../../utils/object.js';
 import { serviceSchema } from '../../../validators/service.js';
+import { ImagePicker } from '../../media/ImagePicker.jsx';
 
-const EMPTY_SERVICE = { title: '', description: '', icon: SERVICE_ICON_OPTIONS[0].value, isFeatured: false };
+const EMPTY_SERVICE = {
+  titleAr: '',
+  titleEn: '',
+  descriptionAr: '',
+  descriptionEn: '',
+  icon: OPTION_GROUPS.serviceIcon[0],
+  isFeatured: false,
+  ...emptyMediaValues('service'),
+};
 
 export const ServiceFormModal = ({ service, onClose, onSaved }) => {
+  const { t } = useI18n();
+  const { can } = useAuth();
+  const iconOptions = useOptions('serviceIcon');
   const form = useSubmitForm({
     initialValues: pickValues(service, EMPTY_SERVICE),
     schema: serviceSchema,
-    submit: (values) =>
-      service ? dashboardApi.services.replace(service.id, values) : dashboardApi.services.create(values),
+    submit: (values) => {
+      const payload = withMediaIds('service', values);
+      return service ? dashboardApi.services.replace(service.id, payload) : dashboardApi.services.create(payload);
+    },
     onSaved,
   });
 
   return (
-    <FormModal title={service ? 'تعديل الخدمة' : 'إضافة خدمة جديدة'} form={form} onClose={onClose}>
-      <FormField label="اسم الخدمة أو العملية" required {...form.register('title')} />
-      <FormField as="textarea" label="الوصف" rows={4} maxLength={1000} required {...form.register('description')} />
+    <FormModal
+      size="lg"
+      title={service ? t('dashboard.services.form.editTitle') : t('dashboard.services.form.newTitle')}
+      form={form}
+      onClose={onClose}
+    >
+      <BilingualField form={form} name="title" label={t('dashboard.services.form.title')} required />
+      <BilingualField
+        form={form}
+        name="description"
+        label={t('dashboard.services.form.description')}
+        as="textarea"
+        rows={4}
+        maxLength={1000}
+        required
+      />
       <div className="flex items-end gap-3">
         <FormField
-          label="الأيقونة"
+          label={t('dashboard.services.form.icon')}
           as="select"
-          options={SERVICE_ICON_OPTIONS}
+          options={iconOptions}
           className="flex-1"
           required
           {...form.register('icon')}
@@ -34,10 +67,17 @@ export const ServiceFormModal = ({ service, onClose, onSaved }) => {
         <IconTile name={form.values.icon} size="sm" className="size-11" />
       </div>
       <CheckboxField
-        label="خدمة مميزة"
-        description="تظهر الخدمات المميزة في الصفحة الرئيسية"
+        label={t('dashboard.services.form.featured')}
+        description={t('dashboard.services.form.featuredHint')}
         {...form.register('isFeatured')}
       />
+      {can(PERMISSIONS.MEDIA_MANAGE) && (
+        <ImagePicker
+          label={t('dashboard.services.form.image')}
+          hint={t('dashboard.services.form.imageHint')}
+          {...form.register('image')}
+        />
+      )}
     </FormModal>
   );
 };

@@ -1,87 +1,74 @@
 import { dashboardApi } from '../../../api/dashboard.js';
 import { Badge } from '../../../components/Badge.jsx';
 import { Button } from '../../../components/Button.jsx';
-import { Icon } from '../../../components/Icon.jsx';
 import { IconTile } from '../../../components/IconTile.jsx';
 import { MAX_PAGE_SIZE } from '../../../config/constants.js';
-import { useAction } from '../../../hooks/useAction.js';
+import { useI18n } from '../../../hooks/useI18n.js';
 import { usePaginatedList } from '../../../hooks/usePaginatedList.js';
 import { ActiveBadge, ActiveToggleButton } from '../ActiveControls.jsx';
 import { PaginatedTable } from '../PaginatedTable.jsx';
 import { PanelHeader } from '../PanelHeader.jsx';
-import { EditButton, RowActions } from '../RowActions.jsx';
+import { EditButton, ReorderButtons, RowActions } from '../RowActions.jsx';
 import { useActiveToggle } from '../useActiveToggle.js';
 import { useRecordModal } from '../useRecordModal.js';
+import { useReorder } from '../useReorder.js';
 import { ServiceFormModal } from './ServiceFormModal.jsx';
 
-const swapIds = (items, from, to) => {
-  const ids = items.map((item) => item.id);
-  [ids[from], ids[to]] = [ids[to], ids[from]];
-  return ids;
-};
-
 export const ServicesPanel = () => {
-  const run = useAction();
+  const { t, pick } = useI18n();
   const services = usePaginatedList(dashboardApi.services.list, { pageSize: MAX_PAGE_SIZE });
   const serviceModal = useRecordModal(services.reload);
+  const move = useReorder({
+    items: services.items,
+    reorder: dashboardApi.services.reorder,
+    onSuccess: services.reload,
+  });
 
   const toggleActive = useActiveToggle({
     update: dashboardApi.services.update,
     describeDeactivation: (service) => ({
-      title: 'إيقاف الخدمة',
-      message: `سيتم إخفاء "${service.title}" من صفحات الموقع، ويمكنك تفعيلها مرة أخرى في أي وقت.`,
+      title: t('dashboard.services.deactivate.title'),
+      message: t('dashboard.services.deactivate.message', { name: pick(service, 'title') }),
     }),
     onSuccess: services.reload,
   });
 
-  const move = (index, direction) =>
-    run(() => dashboardApi.services.reorder(swapIds(services.items, index, index + direction)), {
-      onSuccess: services.reload,
-    });
-
   const columns = [
     {
       key: 'order',
-      header: 'الترتيب',
-      render: (service) => {
-        const index = services.items.indexOf(service);
-        return (
-          <div className="flex gap-1">
-            <Button variant="ghost" size="icon" aria-label="تحريك لأعلى" disabled={index === 0} onClick={() => move(index, -1)}>
-              <Icon name="arrowUp" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="تحريك لأسفل"
-              disabled={index === services.items.length - 1}
-              onClick={() => move(index, 1)}
-            >
-              <Icon name="arrowDown" />
-            </Button>
-          </div>
-        );
-      },
+      header: t('dashboard.services.columns.order'),
+      render: (service) => (
+        <ReorderButtons index={services.items.indexOf(service)} count={services.items.length} onMove={move} />
+      ),
     },
     {
       key: 'title',
-      header: 'الخدمة',
+      header: t('dashboard.services.columns.service'),
       render: (service) => (
         <div className="flex items-center gap-3">
           <IconTile name={service.icon} size="sm" />
           <div className="min-w-0">
-            <p className="font-bold text-slate-800">{service.title}</p>
-            <p className="max-w-md truncate text-xs text-slate-500">{service.description}</p>
+            <p className="font-bold text-ink-strong">{pick(service, 'title')}</p>
+            <p className="max-w-md truncate text-xs text-ink-subtle">{pick(service, 'description')}</p>
           </div>
         </div>
       ),
     },
     {
       key: 'featured',
-      header: 'الرئيسية',
-      render: (service) => (service.isFeatured ? <Badge tone="brand">مميزة</Badge> : <span className="text-slate-400">—</span>),
+      header: t('dashboard.services.columns.featured'),
+      render: (service) =>
+        service.isFeatured ? (
+          <Badge tone="brand">{t('dashboard.services.featured')}</Badge>
+        ) : (
+          <span className="text-ink-subtle">—</span>
+        ),
     },
-    { key: 'status', header: 'الحالة', render: (service) => <ActiveBadge isActive={service.isActive} activeLabel="ظاهرة" /> },
+    {
+      key: 'status',
+      header: t('dashboard.services.columns.status'),
+      render: (service) => <ActiveBadge isActive={service.isActive} activeLabel={t('common.visible')} />,
+    },
     {
       key: 'actions',
       header: '',
@@ -97,17 +84,21 @@ export const ServicesPanel = () => {
   return (
     <>
       <PanelHeader
-        title="الخدمات والعمليات"
-        description="الخدمات التي تظهر للمرضى في الموقع وترتيب عرضها."
+        title={t('dashboard.services.title')}
+        description={t('dashboard.services.description')}
         actions={
           <Button icon="plus" onClick={() => serviceModal.open()}>
-            إضافة خدمة
+            {t('dashboard.services.add')}
           </Button>
         }
       />
-      <PaginatedTable list={services} columns={columns} emptyMessage="لم تتم إضافة خدمات بعد" />
+      <PaginatedTable list={services} columns={columns} emptyMessage={t('dashboard.services.empty')} />
       {serviceModal.isOpen && (
-        <ServiceFormModal service={serviceModal.record} onClose={serviceModal.close} onSaved={serviceModal.handleSaved} />
+        <ServiceFormModal
+          service={serviceModal.record}
+          onClose={serviceModal.close}
+          onSaved={serviceModal.handleSaved}
+        />
       )}
     </>
   );

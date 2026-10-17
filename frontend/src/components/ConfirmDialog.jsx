@@ -1,27 +1,32 @@
 import { useCallback, useRef, useState } from 'react';
 import { ConfirmContext } from '../hooks/useConfirm.js';
+import { useI18n } from '../hooks/useI18n.js';
 import { Button } from './Button.jsx';
 import { Modal } from './Modal.jsx';
 
-export const ConfirmDialog = ({ title, message, confirmLabel = 'تأكيد', onConfirm, onCancel }) => (
-  <Modal
-    title={title}
-    onClose={onCancel}
-    size="sm"
-    footer={
-      <>
-        <Button variant="ghost" onClick={onCancel}>
-          تراجع
-        </Button>
-        <Button variant="danger" onClick={onConfirm} autoFocus>
-          {confirmLabel}
-        </Button>
-      </>
-    }
-  >
-    <p className="leading-relaxed text-slate-600">{message}</p>
-  </Modal>
-);
+export const ConfirmDialog = ({ title, message, confirmLabel, onConfirm, onCancel }) => {
+  const { t } = useI18n();
+
+  return (
+    <Modal
+      title={title}
+      onClose={onCancel}
+      size="sm"
+      footer={(dismiss) => (
+        <>
+          <Button variant="ghost" onClick={() => dismiss(onCancel)}>
+            {t('confirm.cancel')}
+          </Button>
+          <Button variant="danger" onClick={() => dismiss(onConfirm)} autoFocus>
+            {confirmLabel ?? t('confirm.confirm')}
+          </Button>
+        </>
+      )}
+    >
+      <div className="leading-relaxed text-ink-muted">{message}</div>
+    </Modal>
+  );
+};
 
 export const ConfirmProvider = ({ children }) => {
   const [options, setOptions] = useState(null);

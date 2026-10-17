@@ -1,21 +1,20 @@
 import Joi from 'joi';
 import { SLOT_DURATION } from '../config/constants.js';
-import { buildResourceSchemas, fields } from './common.js';
+import { bilingual, bilingualKeys, buildResourceSchemas, fields, mediaFields } from './common.js';
+
+const text = (min, max) => Joi.string().trim().min(min).max(max);
 
 export const clinicSchemas = buildResourceSchemas(
   {
-    name: Joi.string().trim().min(2).max(100).label('اسم العيادة'),
-    city: Joi.string().trim().min(2).max(60).label('المدينة'),
-    address: Joi.string().trim().min(5).max(255).label('العنوان'),
+    ...bilingual('name', text(2, 100)),
+    ...bilingual('city', text(2, 60)),
+    ...bilingual('address', text(5, 255)),
     phone: fields.contactPhone,
-    mapUrl: fields.url.allow('', null).label('رابط الخريطة'),
-    slotDurationMinutes: Joi.number()
-      .integer()
-      .min(SLOT_DURATION.min)
-      .max(SLOT_DURATION.max)
-      .label('مدة الكشف بالدقائق'),
+    mapUrl: fields.url.allow('', null),
+    slotDurationMinutes: Joi.number().integer().min(SLOT_DURATION.min).max(SLOT_DURATION.max),
     isActive: fields.isActive,
     sortOrder: fields.sortOrder,
+    ...mediaFields('clinic'),
   },
-  ['name', 'city', 'address', 'phone', 'slotDurationMinutes'],
+  [...bilingualKeys('name', 'city', 'address'), 'phone', 'slotDurationMinutes'],
 );

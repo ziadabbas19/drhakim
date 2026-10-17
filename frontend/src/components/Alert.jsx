@@ -2,10 +2,10 @@ import { cn } from '../utils/cn.js';
 import { Icon } from './Icon.jsx';
 
 const TONES = {
-  info: { box: 'border-brand-200 bg-brand-50 text-brand-900', icon: 'info' },
-  success: { box: 'border-emerald-200 bg-emerald-50 text-emerald-900', icon: 'check' },
-  warning: { box: 'border-amber-200 bg-amber-50 text-amber-900', icon: 'warning' },
-  error: { box: 'border-red-200 bg-red-50 text-red-800', icon: 'error' },
+  info: { box: 'border-primary-line bg-primary-faint text-ink-strong', icon: 'info' },
+  success: { box: 'border-success-line bg-success-soft text-success-ink', icon: 'check' },
+  warning: { box: 'border-warning-line bg-warning-soft text-warning-ink', icon: 'warning' },
+  error: { box: 'border-danger-line bg-danger-soft text-danger-ink', icon: 'error' },
 };
 
 export const Alert = ({ tone = 'info', title, action, className, children }) => (

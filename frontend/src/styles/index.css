@@ -1,35 +1,26 @@
 @import 'tailwindcss';
+@import './tokens.css';
+@import './motion.css';
 
 @theme {
-  --font-sans: 'Cairo', ui-sans-serif, system-ui, 'Segoe UI', Tahoma, sans-serif;
-
-  --color-brand-50: #effcfc;
-  --color-brand-100: #d6f5f5;
-  --color-brand-200: #b0eaec;
-  --color-brand-300: #7ad8de;
-  --color-brand-400: #3dbcc7;
-  --color-brand-500: #21a0ad;
-  --color-brand-600: #1c8193;
-  --color-brand-700: #1c6878;
-  --color-brand-800: #1e5563;
-  --color-brand-900: #1d4854;
-  --color-brand-950: #0d2f39;
-
-  --shadow-soft: 0 10px 40px -12px rgb(13 47 57 / 0.18);
+  /* Self-hosted, split by script, so a page loads only the Arabic or Latin glyphs it uses. */
+  --font-sans: 'Cairo Variable', ui-sans-serif, system-ui, 'Segoe UI', Tahoma, sans-serif;
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;
+    /* The scrollbar space is reserved up front, so content arriving later does not shift the page sideways. */
+    scrollbar-gutter: stable;
   }
 
   body {
-    @apply min-h-dvh bg-white font-sans text-slate-800 antialiased;
+    @apply min-h-dvh bg-canvas font-sans text-ink antialiased;
   }
 
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-brand-500;
+    @apply outline-2 outline-offset-2 outline-focus;
   }
 
   input[type='time'],
@@ -37,13 +28,62 @@
     @apply text-start;
   }
 
+  dialog {
+    @apply bg-surface text-ink;
+  }
+
   dialog::backdrop {
-    @apply bg-slate-950/50 backdrop-blur-sm;
+    @apply bg-backdrop backdrop-blur-sm;
+  }
+
+  /* Numbers such as phone numbers stay left-to-right inside Arabic text. */
+  bdi[dir='ltr'] {
+    unicode-bidi: isolate;
   }
 
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
     }
+  }
+}
+
+/* Formatted text from the dashboard editor (sanitised by the API). */
+@utility rich-text {
+  & > * + * {
+    margin-block-start: 1em;
+  }
+
+  & ul,
+  & ol {
+    padding-inline-start: 1.5rem;
+  }
+
+  & ul {
+    list-style: disc;
+  }
+
+  & ol {
+    list-style: decimal;
+  }
+
+  & li + li {
+    margin-block-start: 0.35em;
+  }
+
+  & strong {
+    @apply font-bold text-ink-strong;
+  }
+
+  & h3 {
+    @apply text-xl font-extrabold text-ink-strong;
+  }
+
+  & a {
+    @apply font-bold text-primary-ink underline underline-offset-4;
+  }
+
+  & blockquote {
+    @apply border-s-4 border-primary-line ps-4 text-ink-muted;
   }
 }

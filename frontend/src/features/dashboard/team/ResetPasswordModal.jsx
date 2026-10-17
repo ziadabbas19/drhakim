@@ -1,10 +1,12 @@
 import { dashboardApi } from '../../../api/dashboard.js';
 import { FormModal } from '../../../components/FormModal.jsx';
+import { useI18n } from '../../../hooks/useI18n.js';
 import { useSubmitForm } from '../../../hooks/useSubmitForm.js';
 import { resetPasswordSchema } from '../../../validators/team.js';
 import { TemporaryPasswordField } from './TemporaryPasswordField.jsx';
 
 export const ResetPasswordModal = ({ member, onClose, onSaved }) => {
+  const { t } = useI18n();
   const form = useSubmitForm({
     initialValues: { password: '' },
     schema: resetPasswordSchema,
@@ -14,9 +16,9 @@ export const ResetPasswordModal = ({ member, onClose, onSaved }) => {
 
   return (
     <FormModal
-      title={`إعادة تعيين كلمة مرور ${member.fullName}`}
-      description="ستتوقف كلمة المرور الحالية فورًا، وسيُطلب من العضو تعيين كلمة مرور جديدة عند الدخول."
-      submitLabel="تعيين كلمة المرور"
+      title={t('dashboard.team.reset.title', { name: member.fullName })}
+      description={t('dashboard.team.reset.description')}
+      submitLabel={t('dashboard.team.reset.submit')}
       form={form}
       onClose={onClose}
     >

@@ -12,9 +12,17 @@
     "migrate": "npm run migrate --prefix backend",
     "seed": "npm run seed --prefix backend",
     "build": "npm run build --prefix frontend",
-    "start": "npm run start --prefix backend"
+    "start": "npm run start --prefix backend",
+    "test": "npm run test:api && npm run test:web && npm run test:e2e",
+    "test:api": "npm test --prefix backend",
+    "test:web": "npm test --prefix frontend",
+    "test:e2e": "playwright test --config e2e/playwright.config.js --project=e2e",
+    "screenshots": "playwright test --config e2e/playwright.config.js --project=screenshots"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.64.1",
     "concurrently": "^10.0.6"
-  }
+  },
+  "type": "module"
 }

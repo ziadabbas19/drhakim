@@ -1,15 +1,4 @@
-const STORAGE_KEY = 'dr-hakim:token';
+import { PREFERENCE_KEYS } from '../config/preferences.js';
+import { createStorage } from '../utils/storage.js';
 
-const attempt = (action) => {
-  try {
-    return action();
-  } catch {
-    return null;
-  }
-};
-
-export const tokenStorage = {
-  get: () => attempt(() => localStorage.getItem(STORAGE_KEY)),
-  set: (token) => attempt(() => localStorage.setItem(STORAGE_KEY, token)),
-  clear: () => attempt(() => localStorage.removeItem(STORAGE_KEY)),
-};
+export const tokenStorage = createStorage(PREFERENCE_KEYS.token);

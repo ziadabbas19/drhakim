@@ -4,6 +4,7 @@ import { SORTABLE_ORDER, createCrudService } from './crud.service.js';
 
 const crud = createCrudService(Clinic, {
   sortable: true,
+  mediaOwner: 'clinic',
   include: ['schedules'],
   order: [...SORTABLE_ORDER, ['schedules', 'dayOfWeek', 'ASC'], ['schedules', 'startTime', 'ASC']],
 });

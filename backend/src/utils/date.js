@@ -1,4 +1,4 @@
-import { CAIRO_TIME_ZONE } from '../config/constants.js';
+import { CAIRO_TIME_ZONE, DEFAULT_LANGUAGE, DISPLAY_LOCALES } from '../config/constants.js';
 
 const MINUTES_PER_HOUR = 60;
 const KNOWN_SUNDAY = Date.UTC(2023, 0, 1);
@@ -13,7 +13,12 @@ const cairoClock = new Intl.DateTimeFormat('en-CA', {
   hourCycle: 'h23',
 });
 
-const weekdayFormatter = new Intl.DateTimeFormat('ar-EG', { weekday: 'long', timeZone: 'UTC' });
+const weekdayFormatters = Object.fromEntries(
+  Object.entries(DISPLAY_LOCALES).map(([lang, locale]) => [
+    lang,
+    new Intl.DateTimeFormat(locale, { weekday: 'long', timeZone: 'UTC' }),
+  ]),
+);
 
 const parseDate = (date) => new Date(`${date}T00:00:00Z`);
 
@@ -40,8 +45,8 @@ export const addDays = (date, days) => {
 
 export const getDayOfWeek = (date) => parseDate(date).getUTCDay();
 
-export const getWeekdayName = (dayOfWeek) =>
-  weekdayFormatter.format(new Date(KNOWN_SUNDAY + Number(dayOfWeek) * 86_400_000));
+export const getWeekdayName = (dayOfWeek, lang = DEFAULT_LANGUAGE) =>
+  weekdayFormatters[lang].format(new Date(KNOWN_SUNDAY + Number(dayOfWeek) * 86_400_000));
 
 export const toMinutes = (time) => {
   const [hours, minutes] = time.split(':').map(Number);

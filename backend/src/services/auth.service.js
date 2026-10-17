@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { messages } from '../config/messages.js';
+import { messages } from '../i18n/index.js';
 import { getPermissions } from '../config/permissions.js';
 import { User } from '../models/index.js';
 import { ApiError } from '../utils/ApiError.js';

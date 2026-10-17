@@ -9,6 +9,7 @@ import { dashboardPath } from '../../../config/navigation.js';
 import { PERMISSIONS } from '../../../config/permissions.js';
 import { useAuth } from '../../../hooks/useAuth.js';
 import { useFetch } from '../../../hooks/useFetch.js';
+import { useI18n } from '../../../hooks/useI18n.js';
 import { WeeklySchedule } from '../../clinics/WeeklySchedule.jsx';
 import { AffectedBookingsNotice } from '../AffectedBookingsNotice.jsx';
 import { PanelHeader } from '../PanelHeader.jsx';
@@ -17,6 +18,7 @@ import { DaysOffManager } from './DaysOffManager.jsx';
 import { ScheduleEditor } from './ScheduleEditor.jsx';
 
 export const ClinicDetailsPanel = () => {
+  const { t, pick } = useI18n();
   const { clinicId } = useParams();
   const { can } = useAuth();
   const canManage = can(PERMISSIONS.CLINICS_MANAGE);
@@ -31,31 +33,28 @@ export const ClinicDetailsPanel = () => {
   return (
     <>
       <PanelHeader
-        title={clinic.data?.name ?? 'تفاصيل العيادة'}
-        description="مواعيد العمل الأسبوعية والإجازات الخاصة بهذه العيادة."
+        title={clinic.data ? pick(clinic.data, 'name') : t('dashboard.clinics.details.fallbackTitle')}
+        description={t('dashboard.clinics.details.description')}
         actions={
           <Button as={Link} to={dashboardPath('clinics')} variant="secondary" icon="arrowBack">
-            كل العيادات
+            {t('dashboard.clinics.details.back')}
           </Button>
         }
       />
       <AsyncContent {...clinic} onRetry={clinic.reload}>
         {(data) => (
           <div className="space-y-6">
-            <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
+            <div className="flex flex-wrap items-center gap-2 text-sm text-ink-muted">
               <ClinicStatusBadge isActive={data.isActive} />
-              <span>{data.city}</span>
+              <span>{pick(data, 'city')}</span>
               <span aria-hidden="true">·</span>
-              <span>{data.address}</span>
+              <span>{pick(data, 'address')}</span>
             </div>
             <AffectedBookingsNotice bookings={affectedBookings} onDismiss={() => setAffectedBookings([])} />
             <Card className="space-y-5">
               <CardHeader
-                title="مواعيد العمل الأسبوعية"
-                description={
-                  canManage &&
-                  'يمكنك إضافة أكثر من فترة في اليوم، مثل فترة صباحية وأخرى مسائية. تغيير المواعيد لا يعدّل الحجوزات المسجلة.'
-                }
+                title={t('dashboard.clinics.details.scheduleTitle')}
+                description={canManage && t('dashboard.clinics.details.scheduleHint')}
               />
               {canManage ? (
                 <ScheduleEditor clinic={data} onSaved={handleScheduleSaved} />

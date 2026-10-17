@@ -1,4 +1,4 @@
-import { messages } from '../config/messages.js';
+import { messages } from '../i18n/index.js';
 import { getDaySlots } from '../services/availability.service.js';
 import { bookingService } from '../services/booking.service.js';
 import { respond } from '../utils/response.js';

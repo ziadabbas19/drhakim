@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { validate } from '../validators/validate.js';
+import { useI18n } from './useI18n.js';
 
-const readFieldValue = ({ target }) => (target.type === 'checkbox' ? target.checked : target.value);
+// Inputs pass change events; custom controls (rich text, image picker) pass the value itself.
+const readFieldValue = (change) => {
+  const target = change?.target;
+  if (!target) return change;
+  return target.type === 'checkbox' ? target.checked : target.value;
+};
 
 const withoutFieldErrors = (errors, name) =>
   Object.fromEntries(Object.entries(errors).filter(([key]) => key !== name && !key.startsWith(`${name}.`)));
@@ -10,6 +16,7 @@ const focusFirstInvalidField = (form) =>
   requestAnimationFrame(() => form?.querySelector('[aria-invalid="true"]')?.focus());
 
 export const useForm = ({ initialValues, schema, onSubmit }) => {
+  const { t } = useI18n();
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState('');
@@ -24,13 +31,13 @@ export const useForm = ({ initialValues, schema, onSubmit }) => {
     name,
     value: values[name] ?? '',
     error: errors[name],
-    onChange: (event) => setValue(name, readFieldValue(event)),
+    onChange: (change) => setValue(name, readFieldValue(change)),
   });
 
   const handleSubmit = async (event) => {
     event?.preventDefault();
     const form = event?.currentTarget;
-    const result = validate(schema, values);
+    const result = validate(schema, values, t);
 
     setSubmitError('');
     setErrors(result.errors ?? {});

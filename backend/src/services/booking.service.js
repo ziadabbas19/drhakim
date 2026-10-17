@@ -2,6 +2,7 @@ import { Op, UniqueConstraintError } from 'sequelize';
 import { UNIQUE_CONSTRAINTS } from '../config/constants.js';
 import { Booking } from '../models/index.js';
 import { createReferenceCode } from '../utils/referenceCode.js';
+import { containsText } from '../utils/search.js';
 import { assertSlotAvailable } from './availability.service.js';
 import { createCrudService } from './crud.service.js';
 
@@ -9,13 +10,11 @@ const MAX_REFERENCE_ATTEMPTS = 3;
 
 const clinicSummary = {
   association: 'clinic',
-  attributes: ['id', 'name', 'city', 'address', 'phone', 'mapUrl'],
+  attributes: ['id', 'nameAr', 'nameEn', 'cityAr', 'cityEn', 'addressAr', 'addressEn', 'phone', 'mapUrl'],
 };
 
-const escapeLikePattern = (value) => value.replace(/[\\%_]/g, '\\$&');
-
 const buildBookingFilters = ({ clinicId, date, status, search }) => {
-  const contains = search && { [Op.iLike]: `%${escapeLikePattern(search)}%` };
+  const contains = search && containsText(search);
   return {
     ...(clinicId && { clinicId }),
     ...(date && { date }),

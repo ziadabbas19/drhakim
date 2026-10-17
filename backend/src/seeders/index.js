@@ -1,10 +1,11 @@
 import { sequelize } from '../models/index.js';
+import { seedAbout } from './about.seeder.js';
 import { seedClinics } from './clinics.seeder.js';
 import { seedOwners } from './owners.seeder.js';
 import { seedServices } from './services.seeder.js';
 import { seedSettings } from './settings.seeder.js';
 
-const seeders = [seedOwners, seedClinics, seedServices, seedSettings];
+const seeders = [seedOwners, seedClinics, seedServices, seedSettings, seedAbout];
 
 try {
   for (const seed of seeders) {

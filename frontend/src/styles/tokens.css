@@ -1,0 +1,132 @@
+/*
+  Design tokens: the only place colors are defined. Components use the semantic names below
+  (bg-surface, text-ink-muted, border-line, bg-primary, ...), never raw palette values, and the
+  dark theme redefines the same names. Tailwind's default palette is removed so raw colors such
+  as bg-slate-50 do not exist.
+*/
+@theme {
+  --color-*: initial;
+
+  /* Page and surfaces */
+  --color-canvas: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f5f8f9;
+  --color-surface-tint: #effcfc;
+  --color-surface-sunken: #eef2f4;
+  --color-line: #e2e8ec;
+  --color-line-strong: #c9d4db;
+
+  /* Text */
+  --color-ink: #1e293b;
+  --color-ink-strong: #0d2f39;
+  --color-ink-muted: #475569;
+  --color-ink-subtle: #5f6f82;
+
+  /* Brand */
+  --color-primary: #1c8193;
+  --color-primary-hover: #1c6878;
+  --color-on-primary: #ffffff;
+  --color-primary-soft: #d6f5f5;
+  --color-primary-faint: #effcfc;
+  --color-primary-ink: #1c6878;
+  --color-primary-line: #b0eaec;
+
+  /* Status */
+  --color-success: #047857;
+  --color-success-soft: #d1fae5;
+  --color-success-ink: #065f46;
+  --color-success-line: #a7f3d0;
+  --color-warning: #b45309;
+  --color-warning-soft: #fef3c7;
+  --color-warning-ink: #78350f;
+  --color-warning-line: #fcd34d;
+  --color-danger: #dc2626;
+  --color-danger-hover: #b91c1c;
+  --color-on-danger: #ffffff;
+  --color-danger-soft: #fee2e2;
+  --color-danger-ink: #991b1b;
+  --color-danger-line: #fca5a5;
+
+  /* Brand surfaces: footer, dashboard header, hero artwork */
+  --color-inverse: #0d2f39;
+  --color-on-inverse: #ffffff;
+  --color-on-inverse-muted: #c3e5e8;
+  --color-hero-from: #21a0ad;
+  --color-hero-via: #1c6878;
+  --color-hero-to: #0d2f39;
+  --color-glow: rgb(176 234 236 / 0.4);
+
+  --color-whatsapp: #047857;
+  --color-whatsapp-hover: #065f46;
+  --color-on-whatsapp: #ffffff;
+
+  --color-focus: #21a0ad;
+  --color-backdrop: rgb(2 6 23 / 0.5);
+  --color-overlay: rgb(3 10 12 / 0.92);
+  --color-on-overlay: #ffffff;
+
+  --color-shadow: rgb(13 47 57 / 0.18);
+  --shadow-soft: 0 10px 40px -12px var(--color-shadow);
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  :root[data-theme='dark'] {
+    color-scheme: dark;
+
+    --color-canvas: #0b1416;
+    --color-surface: #111d20;
+    --color-surface-muted: #0e181b;
+    --color-surface-tint: #0f2328;
+    --color-surface-sunken: #172629;
+    --color-line: #22343a;
+    --color-line-strong: #34505a;
+
+    --color-ink: #dce6e8;
+    --color-ink-strong: #f1fafb;
+    --color-ink-muted: #a8babe;
+    --color-ink-subtle: #8a9fa4;
+
+    --color-primary: #3dbcc7;
+    --color-primary-hover: #63ccd5;
+    --color-on-primary: #052a30;
+    --color-primary-soft: #14363c;
+    --color-primary-faint: #102a2f;
+    --color-primary-ink: #7ad8de;
+    --color-primary-line: #22525a;
+
+    --color-success: #34d399;
+    --color-success-soft: #0f2e25;
+    --color-success-ink: #6ee7b7;
+    --color-success-line: #1d5a46;
+    --color-warning: #fbbf24;
+    --color-warning-soft: #33270c;
+    --color-warning-ink: #fcd34d;
+    --color-warning-line: #6b4e12;
+    --color-danger: #dc2626;
+    --color-danger-hover: #b91c1c;
+    --color-on-danger: #ffffff;
+    --color-danger-soft: #3a1414;
+    --color-danger-ink: #fca5a5;
+    --color-danger-line: #7f1d1d;
+
+    --color-inverse: #071012;
+    --color-on-inverse: #f1fafb;
+    --color-on-inverse-muted: #a9cbd0;
+    --color-hero-from: #1c8193;
+    --color-hero-via: #155866;
+    --color-hero-to: #0a252b;
+    --color-glow: rgb(33 160 173 / 0.18);
+
+    --color-whatsapp: #047857;
+    --color-whatsapp-hover: #065f46;
+
+    --color-focus: #63ccd5;
+    --color-backdrop: rgb(0 0 0 / 0.65);
+
+    --color-shadow: rgb(0 0 0 / 0.6);
+  }
+}

@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 import { BOOKING_STATUSES, BOOKING_WINDOW_DAYS, UPCOMING_BOOKING_STATUSES } from '../config/constants.js';
-import { messages } from '../config/messages.js';
+import { messages } from '../i18n/index.js';
 import { Booking, Clinic } from '../models/index.js';
 import { ApiError } from '../utils/ApiError.js';
 import {

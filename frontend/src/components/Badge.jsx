@@ -1,11 +1,11 @@
 import { cn } from '../utils/cn.js';
 
 const TONES = {
-  neutral: 'bg-slate-100 text-slate-700',
-  brand: 'bg-brand-100 text-brand-800',
-  success: 'bg-emerald-100 text-emerald-800',
-  warning: 'bg-amber-100 text-amber-900',
-  danger: 'bg-red-100 text-red-800',
+  neutral: 'bg-surface-sunken text-ink-muted',
+  brand: 'bg-primary-soft text-primary-ink',
+  success: 'bg-success-soft text-success-ink',
+  warning: 'bg-warning-soft text-warning-ink',
+  danger: 'bg-danger-soft text-danger-ink',
 };
 
 export const Badge = ({ tone = 'neutral', className, children }) => (

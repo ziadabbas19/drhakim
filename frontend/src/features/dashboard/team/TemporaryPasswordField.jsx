@@ -1,5 +1,6 @@
 import { Button } from '../../../components/Button.jsx';
 import { FormField } from '../../../components/FormField.jsx';
+import { useI18n } from '../../../hooks/useI18n.js';
 
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789@#';
 const RANDOM_PASSWORD_LENGTH = 10;
@@ -10,20 +11,29 @@ const randomPassword = () =>
     (value) => ALPHABET[value % ALPHABET.length],
   ).join('');
 
-export const TemporaryPasswordField = ({ form }) => (
-  <div className="flex items-start gap-2">
-    <FormField
-      label="كلمة المرور المؤقتة"
-      dir="ltr"
-      autoComplete="off"
-      spellCheck={false}
-      hint="أرسلها للعضو، وسيُطلب منه تغييرها عند أول تسجيل دخول"
-      className="flex-1"
-      required
-      {...form.register('password')}
-    />
-    <Button variant="secondary" icon="key" className="mt-7" onClick={() => form.setValue('password', randomPassword())}>
-      كلمة عشوائية
-    </Button>
-  </div>
-);
+export const TemporaryPasswordField = ({ form }) => {
+  const { t } = useI18n();
+
+  return (
+    <div className="flex items-start gap-2">
+      <FormField
+        label={t('dashboard.team.password.label')}
+        dir="ltr"
+        autoComplete="off"
+        spellCheck={false}
+        hint={t('dashboard.team.password.hint')}
+        className="flex-1"
+        required
+        {...form.register('password')}
+      />
+      <Button
+        variant="secondary"
+        icon="key"
+        className="mt-7"
+        onClick={() => form.setValue('password', randomPassword())}
+      >
+        {t('dashboard.team.password.generate')}
+      </Button>
+    </div>
+  );
+};

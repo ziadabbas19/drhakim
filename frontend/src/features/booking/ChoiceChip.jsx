@@ -6,10 +6,10 @@ export const ChoiceChip = ({ disabled = false, onClick, className, children, ...
     disabled={disabled}
     onClick={onClick}
     className={cn(
-      'flex items-center justify-center gap-1 rounded-xl border px-3 py-2.5 text-sm font-bold transition-colors',
+      'press flex w-full items-center justify-center gap-1 rounded-xl border px-3 py-2.5 text-sm font-bold',
       disabled
-        ? 'cursor-not-allowed border-slate-200 bg-slate-50 text-slate-400'
-        : 'border-slate-200 bg-white text-slate-700 hover:border-brand-400 hover:bg-brand-50 hover:text-brand-800',
+        ? 'cursor-not-allowed border-line bg-surface-muted text-ink-subtle'
+        : 'border-line bg-surface text-ink hover:border-primary hover:bg-primary-faint hover:text-primary-ink',
       className,
     )}
     {...props}

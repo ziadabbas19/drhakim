@@ -1,4 +1,4 @@
-import { messages } from '../config/messages.js';
+import { messages, translate } from '../i18n/index.js';
 import { asyncHandler } from './asyncHandler.js';
 
 export const RESPONSES = Object.freeze({
@@ -13,5 +13,7 @@ export const sendSuccess = (res, data = null, { status = 200, message = null } =
 export const sendError = (res, status, message, data = null) =>
   res.status(status).json({ success: false, data, message });
 
-export const respond = (resolveData, options) =>
-  asyncHandler(async (req, res) => sendSuccess(res, await resolveData(req), options));
+export const respond = (resolveData, { status, message } = {}) =>
+  asyncHandler(async (req, res) =>
+    sendSuccess(res, await resolveData(req), { status, message: message ? translate(req.lang, message) : null }),
+  );

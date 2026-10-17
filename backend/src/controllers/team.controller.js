@@ -1,4 +1,4 @@
-import { messages } from '../config/messages.js';
+import { messages } from '../i18n/index.js';
 import { teamService } from '../services/team.service.js';
 import { respond } from '../utils/response.js';
 import { createCrudController } from './crud.controller.js';

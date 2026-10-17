@@ -1,0 +1,225 @@
+/*
+  Motion primitives. Everything here animates transform and opacity only, so nothing shifts the
+  layout. Components use them through <Reveal>, <Stagger>, <PageTransition>, the dialog styles,
+  and the `lift` / `press` utilities, never with animation code of their own.
+*/
+:root {
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-reveal: 640ms;
+  --motion-quick: 180ms;
+  --motion-step: 70ms;
+  --motion-distance: 1.25rem;
+  /* Horizontal slides follow the reading direction: "start" is the left in English, the right in Arabic. */
+  --dir: 1;
+}
+
+[dir='rtl'] {
+  --dir: -1;
+}
+
+/* Scroll reveal (Reveal, Stagger) */
+[data-reveal] {
+  opacity: 0;
+  transform: var(--reveal-from);
+  transition:
+    opacity var(--motion-reveal) var(--motion-ease),
+    transform var(--motion-reveal) var(--motion-ease);
+  transition-delay: calc(var(--reveal-index, 0) * var(--motion-step) + var(--reveal-delay, 0ms));
+}
+
+[data-reveal='up'] {
+  --reveal-from: translate3d(0, var(--motion-distance), 0);
+}
+
+[data-reveal='start'] {
+  --reveal-from: translate3d(calc(-1 * var(--dir) * var(--motion-distance)), 0, 0);
+}
+
+[data-reveal='end'] {
+  --reveal-from: translate3d(calc(var(--dir) * var(--motion-distance)), 0, 0);
+}
+
+[data-reveal='scale'] {
+  --reveal-from: scale(0.96);
+}
+
+[data-reveal='fade'] {
+  --reveal-from: none;
+}
+
+/* Movement only: the text is readable from the first paint, which keeps the page's largest
+   content fast to display. */
+[data-reveal='rise'] {
+  --reveal-from: translate3d(0, calc(var(--motion-distance) / 2), 0);
+  opacity: 1;
+}
+
+[data-visible][data-reveal],
+[data-visible] > [data-reveal] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Route changes (PageTransition) */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.75rem, 0);
+  }
+}
+
+.page-enter {
+  animation: page-enter 420ms var(--motion-ease) both;
+}
+
+/* Small panels such as the mobile menu and toasts */
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -0.5rem, 0) scale(0.98);
+  }
+}
+
+.pop-in {
+  animation: pop-in 220ms var(--motion-ease) both;
+}
+
+/* Dialogs: the Modal component waits for the closing animation before it unmounts. */
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.75rem, 0) scale(0.97);
+  }
+}
+
+@keyframes dialog-out {
+  to {
+    opacity: 0;
+    transform: translate3d(0, 0.75rem, 0) scale(0.97);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+dialog[open] {
+  animation: dialog-in 240ms var(--motion-ease);
+}
+
+dialog[open]::backdrop {
+  animation: fade-in 240ms ease-out;
+}
+
+dialog[data-variant='lightbox'][open] {
+  animation-name: fade-in;
+}
+
+dialog[data-closing] {
+  animation: dialog-out 160ms ease-in forwards;
+}
+
+dialog[data-variant='lightbox'][data-closing] {
+  animation-name: fade-out;
+}
+
+dialog[data-closing]::backdrop {
+  animation: fade-out 160ms ease-in forwards;
+}
+
+/* Images fade in over their blurred placeholder once loaded. */
+[data-image-state] {
+  transition: opacity 400ms ease-out;
+}
+
+[data-image-state='loading'] {
+  opacity: 0;
+}
+
+/* Lightbox slides: the incoming image moves in from the side it came from. */
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translate3d(calc(var(--slide-from, 1) * var(--dir) * 2.5rem), 0, 0);
+  }
+}
+
+.slide-in {
+  animation: slide-in 280ms var(--motion-ease) both;
+}
+
+/* Hover and press feedback. The hover shadow is a pseudo-element faded in with opacity, so the
+   box-shadow itself is never animated. `lift` needs a positioned element (relative, fixed, ...). */
+@utility lift {
+  transition: transform var(--motion-quick) var(--motion-ease);
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: var(--shadow-soft);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--motion-quick) var(--motion-ease);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      transform: translate3d(0, -0.25rem, 0);
+    }
+
+    &:hover::after {
+      opacity: 1;
+    }
+  }
+}
+
+@utility press {
+  transition: transform 120ms var(--motion-ease);
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .page-enter,
+  .pop-in,
+  .slide-in,
+  dialog[open],
+  dialog[open]::backdrop,
+  dialog[data-closing],
+  dialog[data-closing]::backdrop {
+    animation: none;
+  }
+
+  [data-image-state] {
+    transition: none;
+  }
+
+  .lift,
+  .lift::after,
+  .press {
+    transition: none;
+  }
+
+  .lift:hover,
+  .press:active {
+    transform: none;
+  }
+}

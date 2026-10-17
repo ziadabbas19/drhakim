@@ -2,51 +2,51 @@ import { AsyncContent } from '../components/AsyncContent.jsx';
 import { Card } from '../components/Card.jsx';
 import { Icon } from '../components/Icon.jsx';
 import { IconTile } from '../components/IconTile.jsx';
+import { Ltr } from '../components/Ltr.jsx';
 import { PageHeader } from '../components/PageHeader.jsx';
 import { Section } from '../components/Section.jsx';
 import { Seo } from '../components/Seo.jsx';
 import { ClinicList } from '../features/clinics/ClinicList.jsx';
-import { getContactChannels } from '../features/settings/contactChannels.js';
+import { useContactChannels } from '../features/settings/contactChannels.js';
 import { SocialLinks } from '../features/settings/SocialLinks.jsx';
+import { useI18n } from '../hooks/useI18n.js';
 import { useSiteSettings } from '../hooks/useSiteSettings.js';
+import { Stagger } from '../motion/Stagger.jsx';
 
 export default function ContactPage() {
+  const { t } = useI18n();
   const siteSettings = useSiteSettings();
+  const channels = useContactChannels();
 
   return (
     <>
-      <Seo title="تواصل معنا" />
-      <PageHeader
-        eyebrow="تواصل معنا"
-        title="نسعد بتواصلك"
-        description="للاستفسار أو الحجز تواصل معنا بالهاتف أو واتساب، أو زر أقرب عيادة إليك."
-      />
+      <Seo title={t('contact.pageTitle')} />
+      <PageHeader eyebrow={t('contact.eyebrow')} title={t('contact.title')} description={t('contact.description')} />
 
       <Section>
-        <AsyncContent {...siteSettings} data={siteSettings.isLoading ? null : siteSettings.settings} onRetry={siteSettings.reload}>
+        <AsyncContent
+          {...siteSettings}
+          data={siteSettings.isLoading ? null : siteSettings.settings}
+          onRetry={siteSettings.reload}
+        >
           {(settings) => (
             <div className="space-y-6">
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {getContactChannels(settings).map(({ key, icon, label, value, linkProps }) => (
-                  <Card
-                    as="a"
-                    key={key}
-                    {...linkProps}
-                    className="flex items-center gap-4 transition-shadow hover:shadow-soft"
-                  >
+              <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {channels.map(({ key, icon, label, value, linkProps }) => (
+                  <Card as="a" key={key} {...linkProps} className="lift relative flex h-full items-center gap-4">
                     <IconTile name={icon} />
                     <span className="min-w-0">
-                      <span className="block text-sm font-bold text-slate-500">{label}</span>
-                      <span className="block truncate text-lg font-extrabold text-brand-950">
-                        <span dir="ltr">{value}</span>
+                      <span className="block text-sm font-bold text-ink-subtle">{label}</span>
+                      <span className="block truncate text-lg font-extrabold text-ink-strong">
+                        <Ltr>{value}</Ltr>
                       </span>
                     </span>
                   </Card>
                 ))}
-              </div>
+              </Stagger>
               {settings.workingHoursNote && (
-                <p className="flex items-start gap-2 rounded-xl bg-brand-50 p-4 text-brand-900">
-                  <Icon name="clock" className="mt-0.5 size-5 shrink-0" />
+                <p className="flex items-start gap-2 rounded-xl bg-surface-tint p-4 text-ink-strong">
+                  <Icon name="clock" className="mt-0.5 size-5 shrink-0 text-primary" />
                   {settings.workingHoursNote}
                 </p>
               )}
@@ -56,7 +56,7 @@ export default function ContactPage() {
         </AsyncContent>
       </Section>
 
-      <Section tone="muted" title="عناوين العيادات" eyebrow="العيادات">
+      <Section tone="muted" title={t('clinics.addresses.title')} eyebrow={t('clinics.addresses.eyebrow')}>
         <ClinicList showSchedule={false} />
       </Section>
     </>

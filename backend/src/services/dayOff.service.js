@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { messages } from '../config/messages.js';
+import { messages } from '../i18n/index.js';
 import { ClinicDayOff } from '../models/index.js';
 import { ApiError } from '../utils/ApiError.js';
 import { nowInCairo } from '../utils/date.js';

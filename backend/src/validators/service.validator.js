@@ -1,14 +1,15 @@
 import Joi from 'joi';
-import { buildResourceSchemas, fields } from './common.js';
+import { bilingual, bilingualKeys, buildResourceSchemas, fields, mediaFields } from './common.js';
 
 export const serviceSchemas = buildResourceSchemas(
   {
-    title: Joi.string().trim().min(2).max(100).label('اسم الخدمة'),
-    description: Joi.string().trim().min(10).max(1000).label('الوصف'),
-    icon: Joi.string().trim().max(40).label('الأيقونة'),
-    isFeatured: Joi.boolean().label('خدمة مميزة'),
+    ...bilingual('title', Joi.string().trim().min(2).max(100)),
+    ...bilingual('description', Joi.string().trim().min(10).max(1000)),
+    icon: Joi.string().trim().max(40),
+    isFeatured: Joi.boolean(),
     isActive: fields.isActive,
     sortOrder: fields.sortOrder,
+    ...mediaFields('service'),
   },
-  ['title', 'description', 'icon'],
+  [...bilingualKeys('title', 'description'), 'icon'],
 );

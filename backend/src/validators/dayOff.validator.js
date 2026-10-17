@@ -6,8 +6,7 @@ export const dayOffSchema = Joi.object({
   date: fields.date.required(),
   reason: Joi.string()
     .valid(...DAY_OFF_REASONS)
-    .required()
-    .label('سبب الإجازة'),
+    .required(),
 });
 
 export const dayOffParamsSchema = Joi.object({

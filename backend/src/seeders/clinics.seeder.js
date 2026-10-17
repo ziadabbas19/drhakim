@@ -1,5 +1,5 @@
 import { Clinic, ClinicSchedule } from '../models/index.js';
-import { seedIfEmpty } from './seedHelpers.js';
+import { seedTranslated } from './seedHelpers.js';
 
 const DAYS = Object.freeze({ SUNDAY: 0, MONDAY: 1, TUESDAY: 2, WEDNESDAY: 3, THURSDAY: 4, SATURDAY: 6 });
 
@@ -10,9 +10,12 @@ const weekly = (days, ranges) =>
 
 const clinics = [
   {
-    name: 'عيادة السنطة',
-    city: 'السنطة - الغربية',
-    address: 'شارع المحطة، أعلى صيدلية الشفاء، الدور الأول، السنطة',
+    nameAr: 'عيادة السنطة',
+    nameEn: 'El-Santa Clinic',
+    cityAr: 'السنطة - الغربية',
+    cityEn: 'El-Santa, Gharbia',
+    addressAr: 'شارع المحطة، أعلى صيدلية الشفاء، الدور الأول، السنطة',
+    addressEn: 'El-Mahatta Street, above El-Shefaa Pharmacy, first floor, El-Santa',
     phone: '0403461275',
     mapUrl: mapSearchUrl('السنطة، الغربية، مصر'),
     slotDurationMinutes: 20,
@@ -20,9 +23,12 @@ const clinics = [
     schedules: weekly([DAYS.SATURDAY, DAYS.MONDAY, DAYS.WEDNESDAY], [['16:00', '21:00']]),
   },
   {
-    name: 'عيادة القاهرة',
-    city: 'القاهرة',
-    address: '24 شارع مكرم عبيد، مدينة نصر، الدور الثالث، القاهرة',
+    nameAr: 'عيادة القاهرة',
+    nameEn: 'Cairo Clinic',
+    cityAr: 'القاهرة',
+    cityEn: 'Cairo',
+    addressAr: '24 شارع مكرم عبيد، مدينة نصر، الدور الثالث، القاهرة',
+    addressEn: '24 Makram Ebeid Street, Nasr City, third floor, Cairo',
     phone: '0224017733',
     mapUrl: mapSearchUrl('شارع مكرم عبيد، مدينة نصر، القاهرة'),
     slotDurationMinutes: 30,
@@ -48,4 +54,4 @@ const createClinic = async ({ schedules, ...clinic }, transaction) => {
   );
 };
 
-export const seedClinics = () => seedIfEmpty(Clinic, clinics, createClinic);
+export const seedClinics = () => seedTranslated(Clinic, clinics, ['nameAr'], createClinic);

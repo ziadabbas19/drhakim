@@ -21,3 +21,14 @@ npm-debug.log*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Browser test output
+test-results/
+playwright-report/
+e2e/screenshots/
+
+# Uploaded images (local storage)
+backend/uploads/
+
+e2e/screenshots
+backend/uploads

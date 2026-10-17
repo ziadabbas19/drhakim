@@ -8,7 +8,9 @@ const SIZES = {
 };
 
 export const IconTile = ({ name, size = 'md', className }) => (
-  <span className={cn('grid shrink-0 place-items-center bg-brand-50 text-brand-700', SIZES[size].tile, className)}>
+  <span
+    className={cn('grid shrink-0 place-items-center bg-primary-soft text-primary-ink', SIZES[size].tile, className)}
+  >
     <Icon name={name} className={SIZES[size].icon} />
   </span>
 );

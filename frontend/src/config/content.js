@@ -1,95 +1,83 @@
-export const doctor = Object.freeze({
-  name: 'د. عبد الحكيم عبد السلام',
-  title: 'استشاري جراحة الأنف والأذن والحنجرة',
-  tagline:
-    'تشخيص دقيق وعلاج آمن لمشكلات الأنف والأذن والحنجرة للكبار والأطفال، بأحدث تقنيات المناظير والجراحات الدقيقة.',
+import { DEFAULT_LANGUAGE } from './languages.js';
+
+// Static site content in both languages. The biography, career, statistics, and galleries are
+// managed from the dashboard (About page), and patient reviews are submitted from the site.
+const CONTENT = Object.freeze({
+  ar: {
+    doctor: {
+      name: 'د. عبد الحكيم عبد السلام',
+      title: 'استشاري جراحة الأنف والأذن والحنجرة',
+      tagline:
+        'تشخيص دقيق وعلاج آمن لمشكلات الأنف والأذن والحنجرة للكبار والأطفال، بأحدث تقنيات المناظير والجراحات الدقيقة.',
+    },
+    seo: {
+      description:
+        'د. عبد الحكيم عبد السلام، استشاري جراحة الأنف والأذن والحنجرة بعيادتي السنطة والقاهرة. احجز كشفك أونلاين لعلاج اللوزتين واللحمية والجيوب الأنفية والحاجز الأنفي ومشكلات السمع والاتزان.',
+    },
+    heroHighlights: ['جراحات المناظير الحديثة', 'رعاية خاصة للأطفال', 'متابعة دقيقة بعد العمليات'],
+    whyChooseUs: [
+      {
+        icon: 'microscope',
+        title: 'تشخيص بالمنظار',
+        text: 'فحص الأنف والحنجرة بالمنظار داخل العيادة لتحديد سبب المشكلة بدقة من أول زيارة.',
+      },
+      {
+        icon: 'shield',
+        title: 'قرار علاجي مدروس',
+        text: 'خطة علاج واضحة تبدأ بالعلاج الدوائي، واللجوء للجراحة فقط عندما تكون هي الحل الأفضل.',
+      },
+      {
+        icon: 'heartHandshake',
+        title: 'متابعة بعد العملية',
+        text: 'زيارات متابعة منتظمة وتواصل مباشر مع العيادة للاطمئنان على التعافي خطوة بخطوة.',
+      },
+    ],
+    bookingNotes: [
+      'يُرجى الحضور قبل موعدك بعشر دقائق.',
+      'أحضر معك أي أشعة أو تحاليل أو روشتات سابقة إن وُجدت.',
+      'ستتواصل العيادة معك لتأكيد الحجز، ويمكنك الإلغاء بالاتصال بالعيادة.',
+    ],
+  },
+  en: {
+    doctor: {
+      name: 'Dr. Abdelhakim Abdelsalam',
+      title: 'Consultant ENT Surgeon',
+      tagline:
+        'Accurate diagnosis and safe treatment of ear, nose, and throat conditions for adults and children, with the latest endoscopic and microsurgical techniques.',
+    },
+    seo: {
+      description:
+        'Dr. Abdelhakim Abdelsalam, consultant ENT surgeon at clinics in El-Santa and Cairo. Book your visit online for tonsils, adenoids, sinuses, a deviated septum, and hearing or balance problems.',
+    },
+    heroHighlights: ['Modern endoscopic surgery', 'Dedicated care for children', 'Close follow-up after surgery'],
+    whyChooseUs: [
+      {
+        icon: 'microscope',
+        title: 'Endoscopic diagnosis',
+        text: 'Endoscopic examination of the nose and throat in the clinic to find the exact cause from the first visit.',
+      },
+      {
+        icon: 'shield',
+        title: 'A considered treatment plan',
+        text: 'A clear plan that starts with medication, turning to surgery only when it is the best option.',
+      },
+      {
+        icon: 'heartHandshake',
+        title: 'Follow-up after surgery',
+        text: 'Regular follow-up visits and direct contact with the clinic to check on your recovery step by step.',
+      },
+    ],
+    bookingNotes: [
+      'Please arrive ten minutes before your appointment.',
+      'Bring any previous scans, test results, or prescriptions you have.',
+      'The clinic will contact you to confirm the booking. To cancel, call the clinic.',
+    ],
+  },
 });
 
-export const siteTitle = `${doctor.name} | ${doctor.title}`;
+export const contentFor = (lang) => CONTENT[lang] ?? CONTENT[DEFAULT_LANGUAGE];
 
-export const seo = Object.freeze({
-  description:
-    'د. عبد الحكيم عبد السلام، استشاري جراحة الأنف والأذن والحنجرة بعيادتي السنطة والقاهرة. احجز كشفك أونلاين لعلاج اللوزتين واللحمية والجيوب الأنفية والحاجز الأنفي ومشكلات السمع والاتزان.',
-});
-
-export const heroHighlights = Object.freeze([
-  'جراحات المناظير الحديثة',
-  'رعاية خاصة للأطفال',
-  'متابعة دقيقة بعد العمليات',
-]);
-
-export const stats = Object.freeze([
-  { value: '+18', label: 'عامًا من الخبرة' },
-  { value: '+6,000', label: 'عملية جراحية' },
-  { value: '+30,000', label: 'مريض تمت متابعته' },
-]);
-
-export const whyChooseUs = Object.freeze([
-  {
-    icon: 'microscope',
-    title: 'تشخيص بالمنظار',
-    text: 'فحص الأنف والحنجرة بالمنظار داخل العيادة لتحديد سبب المشكلة بدقة من أول زيارة.',
-  },
-  {
-    icon: 'shield',
-    title: 'قرار علاجي مدروس',
-    text: 'خطة علاج واضحة تبدأ بالعلاج الدوائي، واللجوء للجراحة فقط عندما تكون هي الحل الأفضل.',
-  },
-  {
-    icon: 'heartHandshake',
-    title: 'متابعة بعد العملية',
-    text: 'زيارات متابعة منتظمة وتواصل مباشر مع العيادة للاطمئنان على التعافي خطوة بخطوة.',
-  },
-]);
-
-export const about = Object.freeze({
-  intro:
-    'أكثر من ثمانية عشر عامًا في تشخيص وعلاج أمراض الأنف والأذن والحنجرة، مع اهتمام خاص بجراحات المناظير وعلاج الأطفال.',
-  bio: [
-    'بدأ د. عبد الحكيم عبد السلام مسيرته في قسم الأنف والأذن والحنجرة بمستشفيات جامعة طنطا، وتدرّج في العمل حتى أصبح استشاريًا للتخصص، وأجرى خلال هذه السنوات آلاف العمليات الجراحية للكبار والأطفال.',
-    'يؤمن الدكتور بأن الخطوة الأولى في العلاج هي التشخيص الصحيح، لذلك يعتمد على الفحص بالمنظار واختبارات السمع والاتزان داخل العيادة، ويشرح للمريض حالته وخيارات العلاج المتاحة بوضوح قبل اتخاذ أي قرار.',
-    'يستقبل الدكتور مرضاه في عيادتين بالسنطة والقاهرة، ويحرص على أن يحصل كل مريض على وقت كافٍ للفحص والمناقشة، مع متابعة مستمرة بعد العمليات حتى التعافي الكامل.',
-  ],
-  qualifications: [
-    { title: 'بكالوريوس الطب والجراحة', institution: 'كلية الطب – جامعة طنطا' },
-    { title: 'ماجستير جراحة الأنف والأذن والحنجرة', institution: 'كلية الطب – جامعة طنطا' },
-    { title: 'دكتوراه جراحة الأنف والأذن والحنجرة', institution: 'كلية الطب – جامعة طنطا' },
-    { title: 'دبلومة جراحات الجيوب الأنفية بالمنظار', institution: 'الجمعية المصرية لجراحات الأنف والجيوب الأنفية' },
-  ],
-  timeline: [
-    { period: '2008 – 2011', title: 'طبيب مقيم أنف وأذن وحنجرة', place: 'مستشفيات جامعة طنطا' },
-    { period: '2011 – 2016', title: 'أخصائي جراحة الأنف والأذن والحنجرة', place: 'مستشفى السنطة المركزي' },
-    { period: '2016 – 2020', title: 'استشاري جراحة الأنف والأذن والحنجرة', place: 'مستشفيات مديرية الصحة بالغربية' },
-    { period: '2020 – الآن', title: 'استشاري جراحة الأنف والأذن والحنجرة', place: 'عيادتا السنطة والقاهرة ومستشفيات خاصة' },
-  ],
-  memberships: [
-    'نقابة أطباء مصر',
-    'الجمعية المصرية لجراحة الأنف والأذن والحنجرة',
-    'الجمعية المصرية لجراحات الأنف والجيوب الأنفية',
-    'الأكاديمية الأمريكية لجراحة الأنف والأذن والحنجرة – عضو دولي',
-  ],
-});
-
-export const testimonials = Object.freeze([
-  {
-    name: 'أم يوسف',
-    location: 'السنطة',
-    text: 'ابني كان بيعاني من اللحمية والشخير طول الليل، والحمد لله بعد العملية نومه اتحسن جدًا. الدكتور شرح لنا كل حاجة بهدوء وطمّنا.',
-  },
-  {
-    name: 'محمد السيد',
-    location: 'طنطا',
-    text: 'عملت عملية الحاجز الأنفي والجيوب بالمنظار، وبقيت أتنفس بشكل طبيعي لأول مرة من سنين. المتابعة بعد العملية كانت ممتازة.',
-  },
-  {
-    name: 'هبة عادل',
-    location: 'القاهرة',
-    text: 'كنت بعاني من دوخة وطنين في الأذن، والدكتور عمل فحص شامل ووصل للسبب بسرعة. تعامل راقي ومواعيد منضبطة.',
-  },
-]);
-
-export const bookingNotes = Object.freeze([
-  'يُرجى الحضور قبل موعدك بعشر دقائق.',
-  'أحضر معك أي أشعة أو تحاليل أو روشتات سابقة إن وُجدت.',
-  'ستتواصل العيادة معك لتأكيد الحجز، ويمكنك الإلغاء بالاتصال بالعيادة.',
-]);
+export const siteTitleFor = (lang) => {
+  const { doctor } = contentFor(lang);
+  return `${doctor.name} | ${doctor.title}`;
+};

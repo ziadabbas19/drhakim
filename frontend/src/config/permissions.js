@@ -7,6 +7,9 @@ export const PERMISSIONS = Object.freeze({
   SERVICES_MANAGE: 'services:manage',
   SETTINGS_MANAGE: 'settings:manage',
   TEAM_MANAGE: 'team:manage',
+  MEDIA_MANAGE: 'media:manage',
+  CONTENT_MANAGE: 'content:manage',
+  REVIEWS_MANAGE: 'reviews:manage',
 });
 
 export const hasPermission = (user, permission) => !permission || Boolean(user?.permissions?.includes(permission));

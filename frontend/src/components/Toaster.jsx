@@ -28,7 +28,7 @@ export const ToastProvider = ({ children }) => {
         className="pointer-events-none fixed inset-x-0 bottom-4 z-50 mx-auto flex max-w-md flex-col gap-2 px-4"
       >
         {toasts.map(({ id, tone, message }) => (
-          <Alert key={id} tone={tone} className="pointer-events-auto shadow-soft">
+          <Alert key={id} tone={tone} className="pop-in pointer-events-auto shadow-soft">
             {message}
           </Alert>
         ))}

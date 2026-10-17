@@ -1,4 +1,4 @@
-import { messages } from '../config/messages.js';
+import { messages } from '../i18n/index.js';
 import { authService, toSessionUser } from '../services/auth.service.js';
 import { respond } from '../utils/response.js';
 

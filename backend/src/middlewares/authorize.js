@@ -1,4 +1,4 @@
-import { messages } from '../config/messages.js';
+import { messages } from '../i18n/index.js';
 import { hasPermission } from '../config/permissions.js';
 import { ApiError } from '../utils/ApiError.js';
 

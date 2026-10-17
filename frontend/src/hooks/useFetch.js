@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useI18n } from './useI18n.js';
 
+// Content comes back in the selected language, so switching languages fetches it again.
 export const useFetch = (fetcher, deps = []) => {
+  const { lang } = useI18n();
   const [state, setState] = useState({ data: null, error: null, isLoading: true });
   const [reloadCount, setReloadCount] = useState(0);
 
@@ -15,7 +18,7 @@ export const useFetch = (fetcher, deps = []) => {
     return () => {
       isCurrent = false;
     };
-  }, [...deps, reloadCount]);
+  }, [...deps, lang, reloadCount]);
 
   const reload = useCallback(() => setReloadCount((count) => count + 1), []);
 

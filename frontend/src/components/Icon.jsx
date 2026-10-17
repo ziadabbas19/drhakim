@@ -7,22 +7,35 @@ import {
   Award,
   Baby,
   BadgeCheck,
+  Bold,
   Building2,
   CalendarCheck,
   CalendarDays,
   CalendarOff,
+  ChevronLeft,
+  ChevronRight,
   CircleAlert,
   CircleCheck,
   Clock,
+  CloudUpload,
   Copy,
   Ear,
   ExternalLink,
+  Eye,
+  EyeOff,
   GraduationCap,
   HeartHandshake,
+  Image,
+  ImagePlus,
+  Images,
   Inbox,
   Info,
+  Italic,
   KeyRound,
+  Languages,
   LayoutDashboard,
+  List,
+  ListOrdered,
   LoaderCircle,
   LogOut,
   Mail,
@@ -30,6 +43,8 @@ import {
   Menu,
   Mic,
   Microscope,
+  Monitor,
+  Moon,
   Pencil,
   Phone,
   Plus,
@@ -39,15 +54,20 @@ import {
   Search,
   Settings,
   ShieldCheck,
+  Star,
   Stethoscope,
+  Sun,
   Trash2,
   TriangleAlert,
+  Type,
   UserCog,
   UserRound,
   Users,
   Wind,
   X,
+  ZoomIn,
 } from 'lucide-react';
+import { cn } from '../utils/cn.js';
 import { brandIcons } from './brandIcons.jsx';
 
 const ICONS = {
@@ -62,6 +82,7 @@ const ICONS = {
   child: Baby,
   microscope: Microscope,
   shield: ShieldCheck,
+  star: Star,
   heartHandshake: HeartHandshake,
   award: Award,
   graduation: GraduationCap,
@@ -88,10 +109,14 @@ const ICONS = {
   edit: Pencil,
   trash: Trash2,
   power: Power,
+  show: Eye,
+  hide: EyeOff,
   arrowUp: ArrowUp,
   arrowDown: ArrowDown,
-  arrowForward: ArrowLeft,
-  arrowBack: ArrowRight,
+  arrowForward: ArrowRight,
+  arrowBack: ArrowLeft,
+  chevronNext: ChevronRight,
+  chevronPrevious: ChevronLeft,
   external: ExternalLink,
   copy: Copy,
   search: Search,
@@ -101,9 +126,33 @@ const ICONS = {
   warning: TriangleAlert,
   error: CircleAlert,
   loader: LoaderCircle,
+  sun: Sun,
+  moon: Moon,
+  monitor: Monitor,
+  languages: Languages,
+  image: Image,
+  imagePlus: ImagePlus,
+  images: Images,
+  upload: CloudUpload,
+  zoom: ZoomIn,
+  text: Type,
+  bold: Bold,
+  italic: Italic,
+  list: List,
+  listOrdered: ListOrdered,
 };
+
+// Drawn for left-to-right reading and mirrored in Arabic, so "forward" always points ahead.
+const DIRECTIONAL = new Set(['arrowForward', 'arrowBack', 'chevronNext', 'chevronPrevious']);
 
 export const Icon = ({ name, className = 'size-5', ...props }) => {
   const Glyph = ICONS[name] ?? Stethoscope;
-  return <Glyph className={className} aria-hidden="true" focusable="false" {...props} />;
+  return (
+    <Glyph
+      className={cn(className, DIRECTIONAL.has(name) && 'rtl:-scale-x-100')}
+      aria-hidden="true"
+      focusable="false"
+      {...props}
+    />
+  );
 };

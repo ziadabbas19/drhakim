@@ -4,8 +4,10 @@ import { PATHS } from '../config/navigation.js';
 import { AuthCard } from '../features/auth/AuthCard.jsx';
 import { LoginForm } from '../features/auth/LoginForm.jsx';
 import { useAuth } from '../hooks/useAuth.js';
+import { useI18n } from '../hooks/useI18n.js';
 
 export default function LoginPage() {
+  const { t } = useI18n();
   const { user, isReady } = useAuth();
   const location = useLocation();
 
@@ -14,8 +16,8 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthCard title="تسجيل الدخول" description="هذه الصفحة مخصصة لفريق العيادة لإدارة الحجوزات والمواعيد.">
-      <Seo title="تسجيل الدخول" noIndex />
+    <AuthCard title={t('auth.login.title')} description={t('auth.login.description')}>
+      <Seo title={t('auth.login.pageTitle')} noIndex />
       <LoginForm />
     </AuthCard>
   );

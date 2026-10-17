@@ -1,3 +1,5 @@
+import { buildColumnHelpers, createTableWith } from './helpers/columns.js';
+
 const TABLES_IN_DROP_ORDER = [
   'users',
   'bookings',
@@ -10,40 +12,12 @@ const TABLES_IN_DROP_ORDER = [
 
 const ENUM_TYPES = ['enum_users_role', 'enum_bookings_status', 'enum_clinic_days_off_reason'];
 
-const buildColumnHelpers = (Sequelize) => ({
-  base: {
-    id: {
-      type: Sequelize.UUID,
-      primaryKey: true,
-      allowNull: false,
-      defaultValue: Sequelize.literal('gen_random_uuid()'),
-    },
-  },
-  timestamps: {
-    created_at: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.fn('now') },
-    updated_at: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.fn('now') },
-  },
-  text: (length, allowNull = false) => ({ type: Sequelize.STRING(length), allowNull }),
-  flag: (defaultValue) => ({ type: Sequelize.BOOLEAN, allowNull: false, defaultValue }),
-  sortOrder: { type: Sequelize.INTEGER, allowNull: false, defaultValue: 0 },
-  time: { type: Sequelize.TIME, allowNull: false },
-  date: { type: Sequelize.DATEONLY, allowNull: false },
-  clinicReference: (onDelete) => ({
-    type: Sequelize.UUID,
-    allowNull: false,
-    references: { model: 'clinics', key: 'id' },
-    onUpdate: 'CASCADE',
-    onDelete,
-  }),
-});
-
 export async function up(queryInterface, Sequelize) {
   const column = buildColumnHelpers(Sequelize);
   const { Op } = Sequelize;
 
   await queryInterface.sequelize.transaction(async (transaction) => {
-    const createTable = (name, columns) =>
-      queryInterface.createTable(name, { ...column.base, ...columns, ...column.timestamps }, { transaction });
+    const createTable = createTableWith(queryInterface, column, transaction);
     const runSql = (sql) => queryInterface.sequelize.query(sql, { transaction });
 
     await createTable('clinics', {

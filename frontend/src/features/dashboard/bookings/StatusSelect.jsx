@@ -1,25 +1,28 @@
 import { CONTROL_CLASS } from '../../../components/FormField.jsx';
-import { BOOKING_STATUS_OPTIONS, findOption } from '../../../config/constants.js';
+import { useI18n } from '../../../hooks/useI18n.js';
+import { useOptions } from '../../../hooks/useOptions.js';
 import { cn } from '../../../utils/cn.js';
 
 const TONE_CLASSES = {
-  warning: 'border-amber-300 bg-amber-50 text-amber-900',
-  brand: 'border-brand-300 bg-brand-50 text-brand-800',
-  success: 'border-emerald-300 bg-emerald-50 text-emerald-800',
-  danger: 'border-red-300 bg-red-50 text-red-800',
+  warning: 'border-warning-line bg-warning-soft text-warning-ink',
+  brand: 'border-primary-line bg-primary-faint text-primary-ink',
+  success: 'border-success-line bg-success-soft text-success-ink',
+  danger: 'border-danger-line bg-danger-soft text-danger-ink',
 };
 
 export const StatusSelect = ({ value, onChange }) => {
-  const { tone } = findOption(BOOKING_STATUS_OPTIONS, value);
+  const { t } = useI18n();
+  const options = useOptions('bookingStatus');
+  const { tone } = options.find((option) => option.value === value);
 
   return (
     <select
-      aria-label="حالة الحجز"
+      aria-label={t('dashboard.bookings.statusLabel')}
       value={value}
       onChange={(event) => onChange(event.target.value)}
       className={cn(CONTROL_CLASS, 'w-auto py-1.5 text-sm font-bold', TONE_CLASSES[tone])}
     >
-      {BOOKING_STATUS_OPTIONS.map((option) => (
+      {options.map((option) => (
         <option key={option.value} value={option.value}>
           {option.label}
         </option>

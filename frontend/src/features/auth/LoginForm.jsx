@@ -3,9 +3,11 @@ import { Form } from '../../components/Form.jsx';
 import { FormField } from '../../components/FormField.jsx';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useForm } from '../../hooks/useForm.js';
+import { useI18n } from '../../hooks/useI18n.js';
 import { loginSchema } from '../../validators/auth.js';
 
 export const LoginForm = () => {
+  const { t } = useI18n();
   const { login } = useAuth();
 
   const form = useForm({
@@ -17,7 +19,7 @@ export const LoginForm = () => {
   return (
     <Form form={form}>
       <FormField
-        label="البريد الإلكتروني"
+        label={t('auth.email')}
         type="email"
         dir="ltr"
         inputMode="email"
@@ -26,7 +28,7 @@ export const LoginForm = () => {
         {...form.register('email')}
       />
       <FormField
-        label="كلمة المرور"
+        label={t('auth.password')}
         type="password"
         dir="ltr"
         autoComplete="current-password"
@@ -34,7 +36,7 @@ export const LoginForm = () => {
         {...form.register('password')}
       />
       <Button type="submit" className="w-full" size="lg" isLoading={form.isSubmitting}>
-        تسجيل الدخول
+        {t('auth.login.submit')}
       </Button>
     </Form>
   );

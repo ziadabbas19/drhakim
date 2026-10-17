@@ -1,20 +1,26 @@
+import { Fragment } from 'react';
 import { Container } from '../../components/Container.jsx';
-import { stats } from '../../config/content.js';
+import { Stagger } from '../../motion/Stagger.jsx';
 
-export const StatsBar = () => (
-  <Container className="relative z-10 mt-6">
-    <dl className="grid gap-5 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-soft sm:grid-cols-3 sm:gap-0">
-      {stats.map(({ value, label }) => (
-        <div
-          key={label}
-          className="flex flex-col-reverse items-center gap-1 border-slate-100 text-center sm:border-s sm:first:border-s-0"
-        >
-          <dt className="text-sm font-semibold text-slate-500">{label}</dt>
-          <dd dir="ltr" className="text-3xl font-extrabold text-brand-700">
-            {value}
-          </dd>
-        </div>
-      ))}
-    </dl>
-  </Container>
-);
+export const StatsBar = ({ stats }) => {
+  if (!stats?.length) return null;
+
+  return (
+    <Container className="relative z-10 mt-6">
+      <Stagger
+        as="dl"
+        className="grid gap-5 rounded-3xl border border-line bg-surface p-6 shadow-soft sm:auto-cols-fr sm:grid-flow-col sm:gap-0"
+        itemClassName="flex flex-col-reverse items-center gap-1 border-line text-center sm:border-s sm:first:border-s-0"
+      >
+        {stats.map(({ id, value, title }) => (
+          <Fragment key={id}>
+            <dt className="text-sm font-semibold text-ink-subtle">{title}</dt>
+            <dd dir="ltr" className="text-3xl font-extrabold text-primary-ink">
+              {value}
+            </dd>
+          </Fragment>
+        ))}
+      </Stagger>
+    </Container>
+  );
+};
