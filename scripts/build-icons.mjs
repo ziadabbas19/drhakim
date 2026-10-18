@@ -1,9 +1,13 @@
 // npm run build:icons: makes the brand images from images-source/logo.png, once, for committing:
 // - frontend/src/assets/logo.png: the logo on a transparent background, 1024 px wide (master);
 // - frontend/src/assets/logo-mark.webp: the size shown next to the doctor's name in the site;
-// - frontend/public/favicon-32.png, favicon-48.png, favicon-192.png, favicon-512.png,
-//   apple-touch-icon.png, and favicon.ico (not linked from the page, kept for anything that asks
-//   for /favicon.ico directly): the logo on a light tile, so the dark teal letters show on dark tabs;
+// - frontend/public/favicon-light-*.png and favicon-dark-*.png (32, 48, and 192 px): the tab
+//   icons, the logo on a transparent background, in its own colours for light tabs and in the
+//   dark theme's colours for dark tabs (index.html picks one by the browser's colour scheme);
+// - frontend/public/favicon-192.png, favicon-512.png, and apple-touch-icon.png: the logo on an
+//   opaque light tile, for the web manifest and iOS home screens;
+// - frontend/public/favicon.ico, favicon-32.png, and favicon-48.png: the tiled logo at tab sizes,
+//   not linked from the page but kept for anything that asks for them directly;
 // - frontend/public/site.webmanifest, and frontend/public/og-image.png (the social share image).
 // Colours come from frontend/src/styles/tokens.css and names from frontend/src/config/content.js.
 // images-source/ itself is never committed.
@@ -32,8 +36,9 @@ const MASTER_PADDING = 0.03;
 // Shown 40 px tall next to the doctor's name; stored at twice that for sharp screens.
 const LOGO_MARK = Object.freeze({ width: 176, height: 96 });
 const ICO_SIZES = [16, 32, 48];
+const TAB_ICON_SIZES = [32, 48, 192];
 const TILE_RADIUS = 0.22;
-// Tab-sized icons give the wide logo as much of the tile as they can, and are lightly sharpened
+// Tab-sized icons give the wide logo as much of the square as they can, and are lightly sharpened
 // after scaling down so the strokes stay readable.
 const SMALL_ICON_MAX = 48;
 const SMALL_ICON_SHARPEN = Object.freeze({ sigma: 0.5 });
@@ -42,18 +47,32 @@ const TILE_PADDING = { small: 0.06, large: 0.1, appleTouch: 0.14 };
 const SHARE_TITLE = 'أخصائي أنف وأذن وحنجرة';
 const SHARE_SIZE = Object.freeze({ width: 1200, height: 630 });
 
-// Colours of the light theme (the token block before the dark theme's), by token name.
+const DARK_THEME_BLOCK = ":root[data-theme='dark'] {";
+
+// Colours from tokens.css by token name: the light theme's (the block before the dark theme's),
+// or the dark theme's own block.
 const readColours = async () => {
   const css = await readFile(path.join(ROOT, 'frontend', 'src', 'styles', 'tokens.css'), 'utf8');
-  const light = css.slice(0, css.indexOf('@layer base'));
-  const colours = Object.fromEntries(
-    [...light.matchAll(/--color-([\w-]+):\s*(#[0-9a-f]{6})/gi)].map(([, name, value]) => [name, value]),
+  const darkStart = css.indexOf(DARK_THEME_BLOCK);
+  const blocks = {
+    light: css.slice(0, css.indexOf('@layer base')),
+    dark: css.slice(darkStart, css.indexOf('}', darkStart)),
+  };
+  const themes = Object.fromEntries(
+    Object.entries(blocks).map(([theme, text]) => [
+      theme,
+      Object.fromEntries(
+        [...text.matchAll(/--color-([\w-]+):\s*(#[0-9a-f]{6})/gi)].map(([, name, value]) => [name, value]),
+      ),
+    ]),
   );
-  return (name) => {
-    if (!colours[name]) throw new Error(`No --color-${name} token in tokens.css`);
-    return colours[name];
+  return (name, theme = 'light') => {
+    if (!themes[theme][name]) throw new Error(`No ${theme} --color-${name} token in tokens.css`);
+    return themes[theme][name];
   };
 };
+
+const toRgb = (hex) => [1, 3, 5].map((start) => Number.parseInt(hex.slice(start, start + 2), 16));
 
 const ramp = (value, { low, high }) => Math.max(0, Math.min(1, (value - low) / (high - low)));
 
@@ -82,17 +101,58 @@ const cleanLogo = async () => {
   return sharp(padded).resize({ width: MASTER_WIDTH, kernel: 'lanczos3' }).png({ compressionLevel: 9 }).toBuffer();
 };
 
+// The logo's teal and gold: the middle values of its cool and of its warm fully opaque pixels.
+const logoColours = async (logo) => {
+  const { data } = await sharp(logo).raw().toBuffer({ resolveWithObject: true });
+  const samples = { teal: [[], [], []], gold: [[], [], []] };
+  for (let index = 0; index < data.length; index += 4) {
+    if (data[index + 3] < 250) continue;
+    const group = data[index] > data[index + 2] ? samples.gold : samples.teal;
+    for (let channel = 0; channel < 3; channel += 1) group[channel].push(data[index + channel]);
+  }
+  const median = (values) => values.sort((a, b) => a - b)[Math.floor(values.length / 2)];
+  return { teal: samples.teal.map(median), gold: samples.gold.map(median) };
+};
+
+const smoothstep = (value, low, high) => {
+  const t = Math.max(0, Math.min(1, (value - low) / (high - low)));
+  return t * t * (3 - 2 * t);
+};
+
+// Gives each pixel new colours by where it sits between the logo's teal and gold, keeping its
+// alpha, so edges stay as smooth as before and no colour from the old palette is left around them.
+const recolour = async (png, from, to) => {
+  const { data, info } = await sharp(png).raw().toBuffer({ resolveWithObject: true });
+  const axis = from.gold.map((value, channel) => value - from.teal[channel]);
+  const axisLength = axis.reduce((sum, value) => sum + value * value, 0);
+  for (let index = 0; index < data.length; index += 4) {
+    if (!data[index + 3]) continue;
+    const along = axis.reduce((sum, value, channel) => sum + (data[index + channel] - from.teal[channel]) * value, 0);
+    const goldness = smoothstep(along / axisLength, 0.25, 0.75);
+    for (let channel = 0; channel < 3; channel += 1) {
+      data[index + channel] = Math.round(to.teal[channel] + (to.gold[channel] - to.teal[channel]) * goldness);
+    }
+  }
+  return sharp(data, { raw: info }).png({ compressionLevel: 9 }).toBuffer();
+};
+
 const tileSvg = (size, colour, radius) =>
   Buffer.from(
     `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">` +
       `<rect width="${size}" height="${size}" rx="${radius}" fill="${colour}"/></svg>`,
   );
 
+const TRANSPARENT = Object.freeze({ r: 0, g: 0, b: 0, alpha: 0 });
+
+// The mark centred on a square: a light tile when `colour` is given, transparent otherwise.
 const onTile = async (mark, size, { colour, padding, rounded = true, sharpen }) => {
   const inner = Math.round(size * (1 - 2 * padding));
   const fitted = sharp(mark).resize({ width: inner, height: inner, fit: 'inside', kernel: 'lanczos3' });
   if (sharpen) fitted.sharpen(sharpen);
-  return sharp(tileSvg(size, colour, rounded ? Math.round(size * TILE_RADIUS) : 0))
+  const base = colour
+    ? sharp(tileSvg(size, colour, rounded ? Math.round(size * TILE_RADIUS) : 0))
+    : sharp({ create: { width: size, height: size, channels: 4, background: TRANSPARENT } });
+  return base
     .composite([{ input: await fitted.toBuffer(), gravity: 'center' }])
     .png({ compressionLevel: 9 })
     .toBuffer();
@@ -189,6 +249,18 @@ try {
       ? onTile(logo, size, { ...tile, padding: TILE_PADDING.small, sharpen: SMALL_ICON_SHARPEN })
       : onTile(logo, size, { ...tile, padding: TILE_PADDING.large });
 
+  // The dark-tab icons are recoloured after scaling, so the pixels sharpening touches take the
+  // new colours too: the teal becomes the dark theme's primary-ink and the gold its accent.
+  const darkColours = { teal: toRgb(colour('primary-ink', 'dark')), gold: toRgb(colour('accent', 'dark')) };
+  const sourceColours = await logoColours(logo);
+  const tabIcon = (size) => onTile(logo, size, { padding: TILE_PADDING.small, sharpen: SMALL_ICON_SHARPEN });
+  const tabIcons = {};
+  for (const size of TAB_ICON_SIZES) {
+    const light = await tabIcon(size);
+    tabIcons[path.join(PUBLIC, `favicon-light-${size}.png`)] = light;
+    tabIcons[path.join(PUBLIC, `favicon-dark-${size}.png`)] = await recolour(light, sourceColours, darkColours);
+  }
+
   await mkdir(ASSETS, { recursive: true });
   const outputs = {
     [path.join(ASSETS, 'logo.png')]: logo,
@@ -199,6 +271,7 @@ try {
     [path.join(PUBLIC, 'favicon.ico')]: toIco(
       await Promise.all(ICO_SIZES.map(async (size) => ({ size, png: await icon(size) }))),
     ),
+    ...tabIcons,
     [path.join(PUBLIC, 'favicon-32.png')]: await icon(32),
     [path.join(PUBLIC, 'favicon-48.png')]: await icon(48),
     [path.join(PUBLIC, 'favicon-192.png')]: await icon(192),
