@@ -2,7 +2,7 @@
 // - frontend/src/assets/logo.png: the logo on a transparent background, 1024 px wide (master);
 // - frontend/src/assets/logo-mark.webp: the size shown next to the doctor's name in the site;
 // - frontend/public/favicon.ico, favicon-32.png, favicon-192.png, favicon-512.png, and
-//   apple-touch-icon.png, each on a light tile so the dark teal letters show on dark tabs;
+//   apple-touch-icon.png: the logo on a light tile, so the dark teal letters show on dark tabs;
 // - frontend/public/site.webmanifest, and frontend/public/og-image.png (the social share image).
 // Colours come from frontend/src/styles/tokens.css and names from frontend/src/config/content.js.
 // images-source/ itself is never committed.
@@ -30,12 +30,13 @@ const MASTER_WIDTH = 1024;
 const MASTER_PADDING = 0.03;
 // Shown 40 px tall next to the doctor's name; stored at twice that for sharp screens.
 const LOGO_MARK = Object.freeze({ width: 176, height: 96 });
-// The full logo from 48 px up. Below that its fine strokes blur together, so the tab icons use
-// a simplified mark: the letters HA in a heavy weight of the site's font, in the logo's teal.
-const SIMPLE_MARK_BELOW = 48;
 const ICO_SIZES = [16, 32, 48];
 const TILE_RADIUS = 0.22;
-const TILE_PADDING = { full: 0.1, simple: 0.14, appleTouch: 0.14 };
+// Tab-sized icons give the wide logo as much of the tile as they can, and are lightly sharpened
+// after scaling down so the strokes stay readable.
+const SMALL_ICON_MAX = 48;
+const SMALL_ICON_SHARPEN = Object.freeze({ sigma: 0.5 });
+const TILE_PADDING = { small: 0.06, large: 0.1, appleTouch: 0.14 };
 // The share image shows the logo, the doctor's name, and this title only.
 const SHARE_TITLE = 'أخصائي أنف وأذن وحنجرة';
 const SHARE_SIZE = Object.freeze({ width: 1200, height: 630 });
@@ -80,29 +81,18 @@ const cleanLogo = async () => {
   return sharp(padded).resize({ width: MASTER_WIDTH, kernel: 'lanczos3' }).png({ compressionLevel: 9 }).toBuffer();
 };
 
-// The logo's own teal: the middle value of its cool, fully opaque pixels.
-const logoTeal = async (logo) => {
-  const { data } = await sharp(logo).raw().toBuffer({ resolveWithObject: true });
-  const channels = [[], [], []];
-  for (let index = 0; index < data.length; index += 4) {
-    if (data[index + 3] < 250 || data[index] > data[index + 2]) continue;
-    for (let channel = 0; channel < 3; channel += 1) channels[channel].push(data[index + channel]);
-  }
-  const median = (values) => values.sort((a, b) => a - b)[Math.floor(values.length / 2)];
-  return `#${channels.map((values) => median(values).toString(16).padStart(2, '0')).join('')}`;
-};
-
 const tileSvg = (size, colour, radius) =>
   Buffer.from(
     `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">` +
       `<rect width="${size}" height="${size}" rx="${radius}" fill="${colour}"/></svg>`,
   );
 
-const onTile = async (mark, size, { colour, padding, rounded = true }) => {
+const onTile = async (mark, size, { colour, padding, rounded = true, sharpen }) => {
   const inner = Math.round(size * (1 - 2 * padding));
-  const fitted = await sharp(mark).resize({ width: inner, height: inner, fit: 'inside', kernel: 'lanczos3' }).toBuffer();
+  const fitted = sharp(mark).resize({ width: inner, height: inner, fit: 'inside', kernel: 'lanczos3' });
+  if (sharpen) fitted.sharpen(sharpen);
   return sharp(tileSvg(size, colour, rounded ? Math.round(size * TILE_RADIUS) : 0))
-    .composite([{ input: fitted, gravity: 'center' }])
+    .composite([{ input: await fitted.toBuffer(), gravity: 'center' }])
     .png({ compressionLevel: 9 })
     .toBuffer();
 };
@@ -132,20 +122,20 @@ const createRenderer = async () => {
   const browser = await chromium.launch();
   const folder = await mkdtemp(path.join(os.tmpdir(), 'dr-hakim-brand-'));
   let count = 0;
-  const render = async (body, { width, height, transparent = false }) => {
+  const render = async (body, { width, height }) => {
     count += 1;
     const file = path.join(folder, `page-${count}.html`);
     await writeFile(
       file,
       `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">` +
         `<link rel="stylesheet" href="${pathToFileURL(FONT_CSS).href}">` +
-        `<style>html,body{margin:0;width:${width}px;height:${height}px;background:transparent;` +
+        `<style>html,body{margin:0;width:${width}px;height:${height}px;` +
         `font-family:'Cairo Variable',sans-serif}</style></head><body>${body}</body></html>`,
     );
     const page = await browser.newPage({ viewport: { width, height } });
     await page.goto(pathToFileURL(file).href);
     await page.evaluate(() => document.fonts.ready);
-    const png = await page.screenshot({ omitBackground: transparent });
+    const png = await page.screenshot();
     await page.close();
     return png;
   };
@@ -155,13 +145,6 @@ const createRenderer = async () => {
   };
   return { render, close };
 };
-
-const simpleMark = (render, teal) =>
-  render(
-    `<div style="display:grid;place-items:center;width:512px;height:512px;font-weight:900;font-size:300px;` +
-      `line-height:1;letter-spacing:-0.02em;color:${teal}" dir="ltr">HA</div>`,
-    { width: 512, height: 512, transparent: true },
-  ).then((png) => sharp(png).trim({ threshold: 1 }).png().toBuffer());
 
 const shareImage = (render, logo, colour, name) =>
   render(
@@ -199,12 +182,11 @@ const colour = await readColours();
 const logo = await cleanLogo();
 const renderer = await createRenderer();
 try {
-  const simple = await simpleMark(renderer.render, await logoTeal(logo));
   const tile = { colour: colour('surface-tint') };
   const icon = (size) =>
-    size < SIMPLE_MARK_BELOW
-      ? onTile(simple, size, { ...tile, padding: TILE_PADDING.simple })
-      : onTile(logo, size, { ...tile, padding: TILE_PADDING.full });
+    size <= SMALL_ICON_MAX
+      ? onTile(logo, size, { ...tile, padding: TILE_PADDING.small, sharpen: SMALL_ICON_SHARPEN })
+      : onTile(logo, size, { ...tile, padding: TILE_PADDING.large });
 
   await mkdir(ASSETS, { recursive: true });
   const outputs = {
