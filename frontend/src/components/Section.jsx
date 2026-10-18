@@ -1,6 +1,7 @@
 import { Reveal } from '../motion/Reveal.jsx';
 import { cn } from '../utils/cn.js';
 import { Container } from './Container.jsx';
+import { ErrorBoundary } from './ErrorBoundary.jsx';
 import { Eyebrow } from './Eyebrow.jsx';
 
 const TONES = {
@@ -9,6 +10,7 @@ const TONES = {
   brand: 'bg-surface-tint',
 };
 
+// A failure inside one section's content stays inside that section.
 export const Section = ({ id, eyebrow, title, description, action, tone = 'white', centered = false, children }) => (
   <section id={id} className={cn('py-14 sm:py-20', TONES[tone])}>
     <Container>
@@ -28,7 +30,7 @@ export const Section = ({ id, eyebrow, title, description, action, tone = 'white
           {action}
         </Reveal>
       )}
-      {children}
+      <ErrorBoundary>{children}</ErrorBoundary>
     </Container>
   </section>
 );

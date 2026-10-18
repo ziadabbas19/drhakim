@@ -137,6 +137,14 @@ export default {
       viewImages: 'View photos of {{title}}',
       imageCount: { zero: 'No photos', one: '{{count}} photo', other: '{{count}} photos' },
     },
+    empty: {
+      profile: "The doctor's biography will be added soon",
+      qualification: 'Qualifications will be added soon',
+      timeline: 'Career highlights will be added soon',
+      membership: 'Professional memberships will be added soon',
+      gallery: 'Photos will be added soon',
+      surgery: 'Surgery examples will be added soon',
+    },
   },
 
   services: {
@@ -580,7 +588,7 @@ export default {
     about: {
       title: 'About page',
       description:
-        'Everything shown on the About page and the home page: photos, biography, statistics, and patient stories.',
+        'Everything shown on the About page and the home page: photos, biography, career, statistics, and the surgery gallery.',
       tabs: 'About page sections',
       profile: {
         tab: 'Biography and photos',
@@ -736,6 +744,12 @@ export default {
 
   errors: {
     network: 'Could not reach the server. Check your internet connection and try again',
+    unexpectedResponse: 'The server sent an unexpected reply. Please try again in a moment',
+    crash: {
+      page: 'Sorry, something went wrong while showing this page. Reloading usually fixes it',
+      section: 'This part of the page could not be shown',
+      reload: 'Reload page',
+    },
   },
 
   validation: {

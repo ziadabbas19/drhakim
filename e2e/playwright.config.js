@@ -23,9 +23,16 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   projects: [
+    // Checks the site as freshly seeded, before the other tests change its content.
+    {
+      name: 'fresh-site',
+      testMatch: /fresh-site\.spec\.js/,
+      use: { ...devices['Desktop Chrome'] },
+    },
     {
       name: 'e2e',
-      testIgnore: /screenshots\.spec\.js/,
+      testIgnore: /(screenshots|fresh-site)\.spec\.js/,
+      dependencies: ['fresh-site'],
       use: { ...devices['Desktop Chrome'] },
     },
     {

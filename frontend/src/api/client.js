@@ -18,6 +18,10 @@ class ApiRequestError extends Error {
 
 const sessionHandlers = { onExpired: () => {}, onPasswordChangeRequired: () => {} };
 
+// Every API reply is JSON with a `data` field. Anything else (for example the website's own
+// HTML page, served when a request does not reach the API) is a failed request, not data.
+const isApiReply = (body) => body !== null && typeof body === 'object' && 'data' in body;
+
 export const registerSessionHandlers = (handlers) => Object.assign(sessionHandlers, handlers);
 
 const withoutEmptyValues = (params) =>
@@ -40,6 +44,11 @@ client.interceptors.request.use((config) => {
 
 client.interceptors.response.use(
   (response) => {
+    if (!isApiReply(response.data)) {
+      return Promise.reject(
+        new ApiRequestError({ message: translateCurrent('errors.unexpectedResponse'), status: response.status }),
+      );
+    }
     const refreshedToken = response.headers[REFRESHED_TOKEN_HEADER];
     if (refreshedToken) tokenStorage.set(refreshedToken);
     return response.data;

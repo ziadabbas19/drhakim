@@ -47,5 +47,11 @@ export default defineConfig(({ mode }) => {
       // /uploads serves images stored on disk by the API's local storage (development).
       proxy: { '/api': apiTarget, '/uploads': apiTarget },
     },
+    // npm test: translation checks and component tests, rendered in a simulated browser.
+    test: {
+      environment: 'jsdom',
+      include: ['test/**/*.test.{js,jsx}'],
+      setupFiles: ['test/support/setup.js'],
+    },
   };
 });

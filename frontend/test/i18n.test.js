@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { describe, test } from 'node:test';
+import { describe, test } from 'vitest';
 import { fileURLToPath } from 'node:url';
 import { OPTION_GROUPS } from '../src/config/constants.js';
 import { MEDIA_OWNERS } from '../src/config/mediaSlots.js';
 import { PUBLIC_LINKS } from '../src/config/navigation.js';
 import { THEMES } from '../src/config/preferences.js';
+import { ABOUT_SECTIONS } from '../src/features/about/aboutContent.js';
 import { ABOUT_ITEM_TYPES } from '../src/features/about/aboutItemTypes.js';
 import ar from '../src/i18n/ar.js';
 import en from '../src/i18n/en.js';
@@ -76,6 +77,9 @@ describe('Translations', () => {
       ...THEMES.map((theme) => `preferences.themes.${theme}`),
       ...Object.entries(MEDIA_OWNERS).flatMap(([owner, slots]) =>
         Object.keys(slots).map((slot) => `media.usage.${owner}.${slot}`),
+      ),
+      ...ABOUT_SECTIONS.flatMap(({ key, title, eyebrow, description }) =>
+        [title, eyebrow, description, `about.empty.${key}`].filter(Boolean),
       ),
       ...Object.entries(ABOUT_ITEM_TYPES).flatMap(([type, { fields, reminder }]) => [
         `dashboard.about.types.${type}.label`,

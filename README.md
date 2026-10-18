@@ -159,13 +159,13 @@ Each image remembers where it was stored, so images uploaded during development 
 | backend | `npm run seed` | Create owner accounts and the sample clinics, services, settings, and About content. Safe to run again: existing data is kept |
 | backend | `npm test` | Run the API tests |
 | frontend | `npm run build` | Build the website into `frontend/dist` |
-| frontend | `npm test` | Check the translation files |
+| frontend | `npm test` | Check the translation files and render the pages against simulated API replies |
 
 ## Tests
 
 - **API tests** (`npm test --prefix backend`) start the API against a separate database, `DB_NAME` + `_test` (or `TEST_DATABASE_URL`), which is created automatically if your database user may create databases. Before each run it is rebuilt from the migrations, including rolling the latest migration back and forward again, and filled with the sample content and two test accounts. The tests delete everything in that database and refuse to run against any database whose name does not end in `_test`, so your development data is never touched. Images go to a temporary folder, and Cloudinary is tested with a simulated server.
-- **Frontend tests** (`npm test --prefix frontend`) check that both translation files have the same keys and placeholders and that every key used in the code exists.
-- **Browser tests** (`npm run test:e2e` from the root) build the website and run it against a fresh test database on ports 5055 (API) and 5175 (website). They cover the language and theme switches, motion and reduced motion, the media library, the About page editing, submitting and moderating a review through to the home page, and automated color-contrast checks in both themes. Install the browser once with `npx playwright install chromium`.
+- **Frontend tests** (`npm test --prefix frontend`, Vitest) check that both translation files have the same keys and placeholders and that every key used in the code exists. They also render the site in a simulated browser with made-up API replies (empty content, missing lists, failed or malformed replies) to make sure a page never goes blank: missing content shows a short "will be added soon" message, and a part of a page that fails shows a message with a reload button while the rest of the page keeps working.
+- **Browser tests** (`npm run test:e2e` from the root) build the website and run it against a fresh test database on ports 5055 (API) and 5175 (website). They first open the home and About pages exactly as `npm run seed` leaves them, then cover the language and theme switches, motion and reduced motion, the media library, the About page editing, submitting and moderating a review through to the home page, and automated color-contrast checks in both themes. Install the browser once with `npx playwright install chromium`.
 
 ## Roles and permissions
 

@@ -1,6 +1,7 @@
 import { AsyncContent } from '../components/AsyncContent.jsx';
 import { CallToAction } from '../components/CallToAction.jsx';
 import { Card } from '../components/Card.jsx';
+import { EmptyState } from '../components/EmptyState.jsx';
 import { Icon } from '../components/Icon.jsx';
 import { ImageGallery } from '../components/ImageGallery.jsx';
 import { PageHeader } from '../components/PageHeader.jsx';
@@ -8,6 +9,7 @@ import { MediaImage } from '../components/ResponsiveImage.jsx';
 import { RichText } from '../components/RichText.jsx';
 import { Section } from '../components/Section.jsx';
 import { Seo } from '../components/Seo.jsx';
+import { ABOUT_SECTIONS } from '../features/about/aboutContent.js';
 import { SurgeryGallery } from '../features/about/SurgeryGallery.jsx';
 import { useAboutContent } from '../features/about/useAboutContent.js';
 import { AllReviews } from '../features/reviews/ReviewsSection.jsx';
@@ -38,6 +40,7 @@ const Profile = ({ profile }) => {
           <h2 className="text-2xl font-extrabold text-ink-strong sm:text-3xl">{profile.headline}</h2>
         )}
         {profile.bio && <RichText html={profile.bio} className="text-lg leading-loose text-ink" />}
+        {!profile.headline && !profile.bio && <EmptyState icon="user" message={t('about.empty.profile')} />}
       </Reveal>
     </div>
   );
@@ -92,58 +95,66 @@ const Memberships = ({ items }) => (
   </Stagger>
 );
 
+const AboutGallery = ({ items }) => {
+  const { doctor } = useContent();
+  return <ImageGallery images={items} alt={doctor.name} />;
+};
+
+const SurgeryList = ({ items }) => <SurgeryGallery surgeries={items} />;
+
+// How each of ABOUT_SECTIONS shows its list.
+const SECTION_LISTS = {
+  qualification: Qualifications,
+  timeline: Timeline,
+  membership: Memberships,
+  gallery: AboutGallery,
+  surgery: SurgeryList,
+};
+
+const AboutSection = ({ section, content }) => {
+  const { t } = useI18n();
+  const items = section.list(content);
+  const List = SECTION_LISTS[section.key];
+
+  return (
+    <Section
+      tone={section.tone}
+      title={t(section.title)}
+      eyebrow={section.eyebrow && t(section.eyebrow)}
+      description={section.description && t(section.description)}
+    >
+      {items.length > 0 ? (
+        <List items={items} />
+      ) : (
+        <EmptyState icon={section.icon} message={t(`about.empty.${section.key}`)} />
+      )}
+    </Section>
+  );
+};
+
 export default function AboutPage() {
   const { t } = useI18n();
   const { doctor } = useContent();
   const about = useAboutContent();
-  const profile = about.data?.profile;
 
   return (
     <>
       <Seo title={t('about.pageTitle')} />
-      <PageHeader eyebrow={doctor.title} title={t('about.title', { name: doctor.name })} description={profile?.intro} />
+      <PageHeader
+        eyebrow={doctor.title}
+        title={t('about.title', { name: doctor.name })}
+        description={about.data?.profile.intro}
+      />
 
       <AsyncContent {...about} onRetry={about.reload} reserveSpace>
-        {({ items }) => (
+        {(content) => (
           <>
             <Section>
-              <Profile profile={profile} />
+              <Profile profile={content.profile} />
             </Section>
-
-            {items.qualification.length > 0 && (
-              <Section tone="muted" title={t('about.qualifications')}>
-                <Qualifications items={items.qualification} />
-              </Section>
-            )}
-
-            {items.timeline.length > 0 && (
-              <Section title={t('about.timeline.title')} eyebrow={t('about.timeline.eyebrow')}>
-                <Timeline items={items.timeline} />
-              </Section>
-            )}
-
-            {items.membership.length > 0 && (
-              <Section tone="muted" title={t('about.memberships.title')} eyebrow={t('about.memberships.eyebrow')}>
-                <Memberships items={items.membership} />
-              </Section>
-            )}
-
-            {profile.aboutGallery.length > 0 && (
-              <Section title={t('about.gallery.title')} eyebrow={t('about.gallery.eyebrow')}>
-                <ImageGallery images={profile.aboutGallery} alt={doctor.name} />
-              </Section>
-            )}
-
-            {items.surgery.length > 0 && (
-              <Section
-                tone="muted"
-                title={t('about.surgeries.title')}
-                eyebrow={t('about.surgeries.eyebrow')}
-                description={t('about.surgeries.description')}
-              >
-                <SurgeryGallery surgeries={items.surgery} />
-              </Section>
-            )}
+            {ABOUT_SECTIONS.map((section) => (
+              <AboutSection key={section.key} section={section} content={content} />
+            ))}
           </>
         )}
       </AsyncContent>

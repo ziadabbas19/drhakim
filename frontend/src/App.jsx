@@ -20,39 +20,42 @@ const ChangePasswordPage = lazy(() => import('./pages/ChangePasswordPage.jsx'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage.jsx'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage.jsx'));
 
+// The whole site. Tests render it with a MemoryRouter at the address they need.
+export const Site = ({ Router = BrowserRouter, ...routerProps }) => (
+  <I18nProvider>
+    <ThemeProvider>
+      <Router {...routerProps}>
+        <ToastProvider>
+          <ConfirmProvider>
+            <AuthProvider>
+              <SiteSettingsProvider>
+                <Routes>
+                  <Route element={<SiteLayout />}>
+                    <Route index element={<HomePage />} />
+                    <Route path="about" element={<AboutPage />} />
+                    <Route path="services" element={<ServicesPage />} />
+                    <Route path="clinics" element={<ClinicsPage />} />
+                    <Route path="book" element={<BookingPage />} />
+                    <Route path="contact" element={<ContactPage />} />
+                    <Route path="*" element={<NotFoundPage />} />
+                  </Route>
+                  <Route element={<SiteLayout minimal />}>
+                    <Route path="login" element={<LoginPage />} />
+                    <Route element={<ProtectedRoute />}>
+                      <Route path="change-password" element={<ChangePasswordPage />} />
+                      <Route path="dashboard/*" element={<DashboardPage />} />
+                    </Route>
+                  </Route>
+                </Routes>
+              </SiteSettingsProvider>
+            </AuthProvider>
+          </ConfirmProvider>
+        </ToastProvider>
+      </Router>
+    </ThemeProvider>
+  </I18nProvider>
+);
+
 export default function App() {
-  return (
-    <I18nProvider>
-      <ThemeProvider>
-        <BrowserRouter>
-          <ToastProvider>
-            <ConfirmProvider>
-              <AuthProvider>
-                <SiteSettingsProvider>
-                  <Routes>
-                    <Route element={<SiteLayout />}>
-                      <Route index element={<HomePage />} />
-                      <Route path="about" element={<AboutPage />} />
-                      <Route path="services" element={<ServicesPage />} />
-                      <Route path="clinics" element={<ClinicsPage />} />
-                      <Route path="book" element={<BookingPage />} />
-                      <Route path="contact" element={<ContactPage />} />
-                      <Route path="*" element={<NotFoundPage />} />
-                    </Route>
-                    <Route element={<SiteLayout minimal />}>
-                      <Route path="login" element={<LoginPage />} />
-                      <Route element={<ProtectedRoute />}>
-                        <Route path="change-password" element={<ChangePasswordPage />} />
-                        <Route path="dashboard/*" element={<DashboardPage />} />
-                      </Route>
-                    </Route>
-                  </Routes>
-                </SiteSettingsProvider>
-              </AuthProvider>
-            </ConfirmProvider>
-          </ToastProvider>
-        </BrowserRouter>
-      </ThemeProvider>
-    </I18nProvider>
-  );
+  return <Site />;
 }

@@ -2,6 +2,7 @@ import { Suspense, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import { useI18n } from '../../hooks/useI18n.js';
 import { PageTransition } from '../../motion/PageTransition.jsx';
+import { ErrorBoundary } from '../ErrorBoundary.jsx';
 import { Loader } from '../Loader.jsx';
 import { Footer } from './Footer.jsx';
 import { Navbar } from './Navbar.jsx';
@@ -32,11 +33,14 @@ export const SiteLayout = ({ minimal = false }) => {
       </a>
       <Navbar />
       <main id="main" className="flex-1">
-        <Suspense fallback={<Loader fullPage />}>
-          <PageTransition transitionKey={transitionKeyFor(pathname)}>
-            <Outlet />
-          </PageTransition>
-        </Suspense>
+        {/* A page that fails to load or render shows a message here; the navbar and footer stay usable. */}
+        <ErrorBoundary scope="page" resetKey={pathname}>
+          <Suspense fallback={<Loader fullPage />}>
+            <PageTransition transitionKey={transitionKeyFor(pathname)}>
+              <Outlet />
+            </PageTransition>
+          </Suspense>
+        </ErrorBoundary>
       </main>
       {!minimal && (
         <>

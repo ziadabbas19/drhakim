@@ -1,3 +1,5 @@
+import { listOf, objectOf } from '../utils/shape.js';
+
 // Mirrors backend/src/config/mediaSlots.js: where images can be attached. Forms hold the image
 // objects (to show thumbnails) and send their ids as `<slot>Id` or `<slot>Ids`.
 export const MEDIA_OWNERS = Object.freeze({
@@ -21,3 +23,13 @@ export const withMediaIds = (ownerType, values) => {
 
 export const emptyMediaValues = (ownerType) =>
   Object.fromEntries(Object.entries(MEDIA_OWNERS[ownerType]).map(([slot, { single }]) => [slot, single ? null : []]));
+
+// Fills in image slots missing from an API record: no image for a single slot, an empty list otherwise.
+export const withMediaDefaults = (ownerType, record) => {
+  const values = objectOf(record);
+  const slots = Object.entries(emptyMediaValues(ownerType)).map(([slot, empty]) => [
+    slot,
+    Array.isArray(empty) ? listOf(values[slot]) : (values[slot] ?? empty),
+  ]);
+  return { ...values, ...Object.fromEntries(slots) };
+};
