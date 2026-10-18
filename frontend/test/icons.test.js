@@ -34,7 +34,13 @@ const webpSize = (buffer) => {
   return { width: buffer.readUIntLE(24, 3) + 1, height: buffer.readUIntLE(27, 3) + 1 };
 };
 
-const SQUARE_ICONS = { 'favicon-32.png': 32, 'favicon-192.png': 192, 'favicon-512.png': 512, 'apple-touch-icon.png': 180 };
+const SQUARE_ICONS = {
+  'favicon-32.png': 32,
+  'favicon-48.png': 48,
+  'favicon-192.png': 192,
+  'favicon-512.png': 512,
+  'apple-touch-icon.png': 180,
+};
 
 describe('Brand images', () => {
   test('every icon exists at its size', async () => {
@@ -69,13 +75,13 @@ describe('Brand images', () => {
       'apple-touch-icon.png',
       'favicon-192.png',
       'favicon-32.png',
-      'favicon.ico',
+      'favicon-48.png',
       'site.webmanifest',
     ]);
     for (const name of linked) await access(fromPublic(name));
     assert.match(html, /<meta property="og:image" content="%SITE_URL%\/og-image\.png" \/>/);
     assert.match(html, /<meta name="twitter:image" content="%SITE_URL%\/og-image\.png" \/>/);
-    assert.doesNotMatch(html, /favicon\.svg/);
+    assert.doesNotMatch(html, /favicon\.(svg|ico)/);
   });
 
   test('the manifest is valid and uses the site name', async () => {

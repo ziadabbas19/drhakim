@@ -1,8 +1,9 @@
 // npm run build:icons: makes the brand images from images-source/logo.png, once, for committing:
 // - frontend/src/assets/logo.png: the logo on a transparent background, 1024 px wide (master);
 // - frontend/src/assets/logo-mark.webp: the size shown next to the doctor's name in the site;
-// - frontend/public/favicon.ico, favicon-32.png, favicon-192.png, favicon-512.png, and
-//   apple-touch-icon.png: the logo on a light tile, so the dark teal letters show on dark tabs;
+// - frontend/public/favicon-32.png, favicon-48.png, favicon-192.png, favicon-512.png,
+//   apple-touch-icon.png, and favicon.ico (not linked from the page, kept for anything that asks
+//   for /favicon.ico directly): the logo on a light tile, so the dark teal letters show on dark tabs;
 // - frontend/public/site.webmanifest, and frontend/public/og-image.png (the social share image).
 // Colours come from frontend/src/styles/tokens.css and names from frontend/src/config/content.js.
 // images-source/ itself is never committed.
@@ -199,6 +200,7 @@ try {
       await Promise.all(ICO_SIZES.map(async (size) => ({ size, png: await icon(size) }))),
     ),
     [path.join(PUBLIC, 'favicon-32.png')]: await icon(32),
+    [path.join(PUBLIC, 'favicon-48.png')]: await icon(48),
     [path.join(PUBLIC, 'favicon-192.png')]: await icon(192),
     [path.join(PUBLIC, 'favicon-512.png')]: await icon(512),
     // iOS rounds the corners itself, so this one fills the whole square.
