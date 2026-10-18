@@ -6,14 +6,14 @@ import { failure, htmlPage, ok, renderSite, text } from './support/site.jsx';
 // What production sends: every group present and empty, no testimonial group (reviews have their own API).
 const PRODUCTION_ABOUT = {
   profile: {
-    headline: 'استشاري جراحة الأنف والأذن والحنجرة',
-    intro: 'خبرة طويلة في جراحات الأنف والأذن',
+    headline: 'أخصائي وجراح الأنف والأذن والحنجرة',
+    intro: 'ماجستير الأنف والأذن والحنجرة من جامعة الأزهر',
     bio: '<p>نبذة عن الدكتور</p>',
     heroImage: null,
     portrait: null,
     aboutGallery: [],
   },
-  items: { qualification: [], timeline: [], membership: [], stat: [], surgery: [] },
+  items: { qualification: [], timeline: [], membership: [], stat: [], surgery: [], result: [] },
 };
 
 const UNUSABLE_REVIEW_REPLIES = {

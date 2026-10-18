@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, test } from 'node:test';
+import { CLINICS, DOCTOR_PHONE, SERVICES } from '../src/seeders/content.js';
 import { api, loginAs, useTestServer } from './support/api.js';
 
 useTestServer();
@@ -16,8 +17,8 @@ describe('Content language', () => {
     const { status, headers, body } = await api.get('/clinics');
     assert.equal(status, 200);
     assert.equal(headers.get('content-language'), 'ar');
-    assert.equal(body.data[0].name, 'عيادة السنطة');
-    assert.equal(body.data[0].city, 'السنطة - الغربية');
+    assert.equal(body.data[0].name, CLINICS[0].nameAr);
+    assert.equal(body.data[0].city, CLINICS[0].cityAr);
     assert.equal('nameAr' in body.data[0], false);
     assert.equal('nameEn' in body.data[0], false);
   });
@@ -25,18 +26,18 @@ describe('Content language', () => {
   test('?lang=en returns English', async () => {
     const { headers, body } = await api.get('/clinics', { query: { lang: 'en' } });
     assert.equal(headers.get('content-language'), 'en');
-    assert.equal(body.data[0].name, 'El-Santa Clinic');
-    assert.equal(body.data[0].address, 'El-Mahatta Street, above El-Shefaa Pharmacy, first floor, El-Santa');
+    assert.equal(body.data[0].name, CLINICS[0].nameEn);
+    assert.equal(body.data[0].address, CLINICS[0].addressEn);
   });
 
   test('the Accept-Language header selects the language when ?lang is absent', async () => {
     const { body } = await api.get('/services', { headers: { 'Accept-Language': 'en-US,en;q=0.9' } });
-    assert.equal(body.data[0].title, 'Tonsillectomy');
+    assert.equal(body.data[0].title, SERVICES[0].titleEn);
   });
 
   test('?lang takes priority over the header', async () => {
     const { body } = await api.get('/services', { query: { lang: 'ar' }, headers: { 'Accept-Language': 'en' } });
-    assert.equal(body.data[0].title, 'استئصال اللوزتين');
+    assert.equal(body.data[0].title, SERVICES[0].titleAr);
   });
 
   test('unsupported languages fall back to Arabic', async () => {
@@ -44,7 +45,7 @@ describe('Content language', () => {
     const byHeader = await api.get('/services', { headers: { 'Accept-Language': 'fr-FR' } });
     for (const { headers, body } of [byQuery, byHeader]) {
       assert.equal(headers.get('content-language'), 'ar');
-      assert.equal(body.data[0].title, 'استئصال اللوزتين');
+      assert.equal(body.data[0].title, SERVICES[0].titleAr);
     }
   });
 
@@ -72,8 +73,8 @@ describe('Content language', () => {
   test('admin endpoints return both languages', async () => {
     const { body } = await api.get('/admin/services', { token, query: { lang: 'en' } });
     const [service] = body.data.items;
-    assert.equal(service.titleAr, 'استئصال اللوزتين');
-    assert.equal(service.titleEn, 'Tonsillectomy');
+    assert.equal(service.titleAr, SERVICES[0].titleAr);
+    assert.equal(service.titleEn, SERVICES[0].titleEn);
     assert.equal('title' in service, false);
   });
 
@@ -89,7 +90,7 @@ describe('Content language', () => {
     const arabic = await api.get('/settings');
     assert.equal(english.body.data.workingHoursNote, 'Please book ahead');
     assert.equal(arabic.body.data.workingHoursNote, 'الحجز مسبقًا');
-    assert.equal(english.body.data.doctorPhone, '01001234567');
+    assert.equal(english.body.data.doctorPhone, DOCTOR_PHONE);
 
     await api.put('/admin/settings', { token, body: { workingHoursNoteEn: '' } });
     const fallback = await api.get('/settings', { query: { lang: 'en' } });

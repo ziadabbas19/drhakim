@@ -32,6 +32,28 @@ const decode = async (buffer) => {
   }
 };
 
+// Stores a decoded image and records it in the library, with any extra details (alt text, focus).
+const store = async ({ variants, placeholder, ...image }, { key = randomUUID(), details = {}, transaction } = {}) => {
+  const storage = getStorage();
+  const stored = await storage.upload({ key, variants, ...image });
+  return Media.create(
+    {
+      url: stored.url,
+      storageKey: stored.storageKey,
+      provider: storage.name,
+      width: image.width,
+      height: image.height,
+      mimeType: image.mimeType,
+      sizeBytes: image.sizeBytes,
+      hasTransparency: image.hasTransparency,
+      placeholder,
+      variants: stored.variants,
+      ...details,
+    },
+    { transaction },
+  );
+};
+
 export const mediaService = {
   list: async (query) => ({ ...(await crud.list(query)), limits: UPLOAD_LIMITS }),
   update: crud.update,
@@ -41,24 +63,26 @@ export const mediaService = {
     const images = [];
     for (const file of files) images.push(await decode(file.buffer));
 
-    const storage = getStorage();
     const created = [];
-    for (const { variants, placeholder, ...image } of images) {
-      const stored = await storage.upload({ key: randomUUID(), variants, ...image });
-      const media = await Media.create({
-        url: stored.url,
-        storageKey: stored.storageKey,
-        provider: storage.name,
-        width: image.width,
-        height: image.height,
-        mimeType: image.mimeType,
-        sizeBytes: image.sizeBytes,
-        placeholder,
-        variants: stored.variants,
-      });
-      created.push(await crud.findById(media.id));
-    }
+    for (const image of images) created.push(await crud.findById((await store(image)).id));
     return created;
+  },
+
+  // Adds a photo from `npm run import:images` under a fixed key, unless the library already has
+  // it. `load` returns the file and is only called when the photo is new; `link` saves where the
+  // photo is used, in the same transaction as its record. A file left in storage by a failed
+  // attempt is overwritten by the next one, as the key stays the same.
+  async importImage({ importKey, load, details = {}, link = async () => {} }) {
+    const existing = await Media.findOne({ where: { importKey } });
+    if (existing) return { media: existing, created: false };
+
+    const image = await decode(await load());
+    const media = await Media.sequelize.transaction(async (transaction) => {
+      const record = await store(image, { key: `import-${importKey}`, details: { importKey, ...details }, transaction });
+      await link(record, transaction);
+      return record;
+    });
+    return { media: await crud.findById(media.id), created: true };
   },
 
   // An image that is still in use is only deleted when the request explicitly confirms it.

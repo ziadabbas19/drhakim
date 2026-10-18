@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { login, pngFile, uniqueText } from '../support.js';
+import { adminRequest, login, pngFile, uniqueText } from '../support.js';
 
 const listRow = (page, text) => page.locator('ol').getByRole('listitem').filter({ hasText: text });
 
@@ -49,8 +49,11 @@ test.describe('About page managed from the dashboard', () => {
     );
   });
 
-  test('surgery photos are uploaded on the spot and open in a keyboard-friendly lightbox', async ({ page }) => {
+  test('surgery photos are uploaded on the spot and open in a keyboard-friendly lightbox', async ({ page, request }) => {
     const surgery = uniqueText('جراحة اختبار');
+    // A second specialty, so the gallery offers its filter.
+    const admin = await adminRequest(request);
+    await admin.post('/api/admin/about/items/surgery', { titleAr: uniqueText('جراحة أذن'), category: 'ear' });
 
     await page.goto('/dashboard/about?tab=surgery');
     await expect(page.getByText('صور المرضى تحتاج إلى موافقة مكتوبة')).toBeVisible();
@@ -76,7 +79,7 @@ test.describe('About page managed from the dashboard', () => {
     await expect(listRow(page, surgery).getByText('صورتان')).toBeVisible();
 
     await page.goto('/about');
-    const gallery = page.locator('section', { hasText: 'نماذج من العمليات' });
+    const gallery = page.locator('section', { hasText: 'من غرفة العمليات' });
     await gallery.getByRole('radio', { name: 'الأذن' }).click();
     await expect(gallery.getByText(surgery)).toHaveCount(0);
     await gallery.getByRole('radio', { name: 'الأنف' }).click();

@@ -4,6 +4,11 @@ import { api, loginAs, useTestServer } from './support/api.js';
 
 useTestServer();
 
+const EVERY_DAY = [0, 1, 2, 3, 4, 5, 6];
+
+const setSchedule = async (clinicId, ranges) =>
+  api.put(`/admin/clinics/${clinicId}/schedule`, { token: await loginAs('owner'), body: { ranges } });
+
 const findBookableSlot = async (clinicId) => {
   const { body: dates } = await api.get(`/clinics/${clinicId}/available-dates`);
   const { date } = dates.data.find(({ freeSlots }) => freeSlots > 0);
@@ -26,9 +31,20 @@ describe('Core API', () => {
     assert.deepEqual(staff.body.data.permissions, ['bookings:manage', 'clinics:view']);
   });
 
+  test('seeded clinics have no hours yet, so no day can be booked online', async () => {
+    const { body: clinics } = await api.get('/clinics');
+    for (const clinic of clinics.data) {
+      assert.deepEqual(clinic.schedules, []);
+      const { body: dates } = await api.get(`/clinics/${clinic.id}/available-dates`);
+      assert.deepEqual(dates.data, []);
+    }
+  });
+
   test('a booking is confirmed with the clinic in the requested language', async () => {
     const { body: clinics } = await api.get('/clinics');
     const clinicId = clinics.data[0].id;
+    const hours = EVERY_DAY.map((dayOfWeek) => ({ dayOfWeek, startTime: '09:00', endTime: '21:00' }));
+    assert.equal((await setSchedule(clinicId, hours)).status, 200);
     const slot = await findBookableSlot(clinicId);
     const booking = { clinicId, ...slot, patientName: 'Test Patient', phone: '01012345678' };
 
@@ -49,6 +65,8 @@ describe('Core API', () => {
     const [listed] = bookings.data.items;
     assert.equal(listed.clinic.nameAr, 'عيادة السنطة');
     assert.equal(listed.clinic.nameEn, 'El-Santa Clinic');
+
+    await setSchedule(clinicId, []);
   });
 
   test('staff keep read-only access to clinics', async () => {

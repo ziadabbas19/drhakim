@@ -5,12 +5,12 @@ import { EmptyState } from '../components/EmptyState.jsx';
 import { Icon } from '../components/Icon.jsx';
 import { ImageGallery } from '../components/ImageGallery.jsx';
 import { PageHeader } from '../components/PageHeader.jsx';
-import { MediaImage } from '../components/ResponsiveImage.jsx';
+import { Portrait } from '../components/Portrait.jsx';
 import { RichText } from '../components/RichText.jsx';
 import { Section } from '../components/Section.jsx';
 import { Seo } from '../components/Seo.jsx';
 import { ABOUT_SECTIONS } from '../features/about/aboutContent.js';
-import { SurgeryGallery } from '../features/about/SurgeryGallery.jsx';
+import { CaseGallery } from '../features/about/CaseGallery.jsx';
 import { useAboutContent } from '../features/about/useAboutContent.js';
 import { AllReviews } from '../features/reviews/ReviewsSection.jsx';
 import { useContent } from '../hooks/useContent.js';
@@ -27,12 +27,11 @@ const Profile = ({ profile }) => {
   return (
     <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
       <Reveal variant="start" className="mx-auto w-full max-w-60 sm:max-w-xs lg:max-w-none">
-        <MediaImage
+        <Portrait
           media={profile.portrait}
-          fallbackIcon="user"
           alt={t('about.portraitAlt', { name: doctor.name })}
           sizes={PORTRAIT_SIZES}
-          className="aspect-4/5 rounded-3xl shadow-soft"
+          className="aspect-4/5"
         />
       </Reveal>
       <Reveal variant="end" className="space-y-5">
@@ -100,15 +99,14 @@ const AboutGallery = ({ items }) => {
   return <ImageGallery images={items} alt={doctor.name} />;
 };
 
-const SurgeryList = ({ items }) => <SurgeryGallery surgeries={items} />;
-
 // How each of ABOUT_SECTIONS shows its list.
 const SECTION_LISTS = {
   qualification: Qualifications,
   timeline: Timeline,
   membership: Memberships,
   gallery: AboutGallery,
-  surgery: SurgeryList,
+  surgery: CaseGallery,
+  result: CaseGallery,
 };
 
 const AboutSection = ({ section, content }) => {

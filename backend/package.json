@@ -13,6 +13,7 @@
     "migrate": "sequelize-cli db:migrate",
     "migrate:undo": "sequelize-cli db:migrate:undo",
     "seed": "node src/seeders/index.js",
+    "import:images": "node src/imports/index.js",
     "test": "node --import ./test/support/env.js --test --test-global-setup=./test/support/globalSetup.js --test-concurrency=1 \"test/**/*.test.js\"",
     "test:server": "node --import ./test/support/env.js test/support/server.js"
   },
@@ -33,10 +34,16 @@
     "sharp": "^0.35.5"
   },
   "devDependencies": {
+    "@imgly/background-removal-node": "^1.4.5",
     "cross-env": "^10.1.0",
     "sequelize-cli": "^6.6.5"
   },
   "overrides": {
-    "uuid": "^11.1.1"
+    "uuid": "^11.1.1",
+    "@imgly/background-removal-node": {
+      "sharp": "$sharp",
+      "lodash": "^4.18.1",
+      "zod": "^3.25.76"
+    }
   }
 }

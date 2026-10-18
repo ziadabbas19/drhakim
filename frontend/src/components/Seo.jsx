@@ -3,9 +3,7 @@ import { useLocation } from 'react-router';
 import { siteTitleFor } from '../config/content.js';
 import { useContent } from '../hooks/useContent.js';
 import { useI18n } from '../hooks/useI18n.js';
-import { setCanonicalUrl, setMetaTag } from '../utils/documentMeta.js';
-
-const SITE_URL = (import.meta.env.VITE_SITE_URL || window.location.origin).replace(/\/$/, '');
+import { SITE_URL, setCanonicalUrl, setMetaTag } from '../utils/documentMeta.js';
 
 // Title, description, and social tags in the selected language.
 export const Seo = ({ title, noIndex = false }) => {

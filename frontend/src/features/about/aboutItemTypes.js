@@ -1,19 +1,26 @@
 // The About page lists and the fields each one uses (mirrors the rules in the API's
 // about.validator.js). Labels live under dashboard.about.types.<type> in the translation files.
-// Field kinds: text and textarea are bilingual; plain is language-neutral (e.g. "+18").
+// Field kinds: text and textarea are bilingual; plain is language-neutral (e.g. a number).
+const PHOTO_ITEM_FIELDS = Object.freeze([
+  { name: 'title', kind: 'text', required: true },
+  { name: 'body', kind: 'textarea' },
+  { name: 'category', kind: 'category' },
+  { name: 'gallery', kind: 'gallery' },
+]);
+
 export const ABOUT_ITEM_TYPES = Object.freeze({
   qualification: {
     icon: 'graduation',
     fields: [
       { name: 'title', kind: 'text', required: true },
-      { name: 'subtitle', kind: 'text', required: true },
+      { name: 'subtitle', kind: 'text' },
     ],
   },
   timeline: {
     icon: 'calendar',
     fields: [
       { name: 'title', kind: 'text', required: true },
-      { name: 'subtitle', kind: 'text', required: true },
+      { name: 'subtitle', kind: 'text' },
       { name: 'body', kind: 'text' },
     ],
   },
@@ -31,14 +38,17 @@ export const ABOUT_ITEM_TYPES = Object.freeze({
   surgery: {
     icon: 'images',
     reminder: 'consentReminder',
-    fields: [
-      { name: 'title', kind: 'text', required: true },
-      { name: 'body', kind: 'textarea' },
-      { name: 'category', kind: 'category' },
-      { name: 'gallery', kind: 'gallery' },
-    ],
+    fields: PHOTO_ITEM_FIELDS,
+  },
+  result: {
+    icon: 'images',
+    reminder: 'consentReminder',
+    fields: PHOTO_ITEM_FIELDS,
   },
 });
+
+// Lists that show photos grouped by specialty.
+export const isPhotoList = (type) => ABOUT_ITEM_TYPES[type].fields === PHOTO_ITEM_FIELDS;
 
 const EMPTY_BY_KIND = {
   text: (name) => ({ [`${name}Ar`]: '', [`${name}En`]: '' }),

@@ -1,3 +1,5 @@
+export const SITE_URL = (import.meta.env.VITE_SITE_URL || window.location.origin).replace(/\/$/, '');
+
 const upsertHeadElement = (tag, matchAttribute, matchValue) => {
   const selector = `${tag}[${matchAttribute}="${matchValue}"]`;
   let element = document.head.querySelector(selector);

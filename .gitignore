@@ -30,5 +30,8 @@ e2e/screenshots/
 # Uploaded images (local storage)
 backend/uploads/
 
+# The doctor's original photos, imported with `npm run import:images` (never committed)
+images-source/
+
 e2e/screenshots
 backend/uploads

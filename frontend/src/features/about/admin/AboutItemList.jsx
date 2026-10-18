@@ -12,7 +12,7 @@ import { ReorderableList } from '../../dashboard/ReorderableList.jsx';
 import { DeleteButton, EditButton } from '../../dashboard/RowActions.jsx';
 import { useRecordModal } from '../../dashboard/useRecordModal.js';
 import { useReorder } from '../../dashboard/useReorder.js';
-import { ABOUT_ITEM_TYPES } from '../aboutItemTypes.js';
+import { ABOUT_ITEM_TYPES, isPhotoList } from '../aboutItemTypes.js';
 import { AboutItemFormModal } from './AboutItemFormModal.jsx';
 
 const ItemSummary = ({ type, item }) => {
@@ -26,12 +26,12 @@ const ItemSummary = ({ type, item }) => {
       {detail && <p className="text-sm text-ink-subtle">{detail}</p>}
       <div className="flex flex-wrap gap-1.5">
         {!item.isActive && <Badge>{t('common.hidden')}</Badge>}
-        {type === 'surgery' && (
+        {isPhotoList(type) && (
           <>
             {item.category && <Badge tone="brand">{optionLabel('surgeryCategory', item.category)}</Badge>}
             <Badge>
               {item.gallery.length
-                ? t('about.surgeries.imageCount', { count: item.gallery.length })
+                ? t('about.cases.imageCount', { count: item.gallery.length })
                 : t('dashboard.about.list.noImages')}
             </Badge>
           </>

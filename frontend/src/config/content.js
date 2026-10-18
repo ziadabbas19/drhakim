@@ -1,39 +1,50 @@
 import { DEFAULT_LANGUAGE } from './languages.js';
 
-// Static site content in both languages. The biography, career, statistics, and galleries are
-// managed from the dashboard (About page), and patient reviews are submitted from the site.
+// Static site content in both languages, limited to details the doctor has confirmed. The
+// biography, career, and photos are managed from the dashboard (About page), and patient reviews
+// are submitted from the site.
 const CONTENT = Object.freeze({
   ar: {
     doctor: {
       name: 'د. عبد الحكيم عبد السلام',
-      title: 'استشاري جراحة الأنف والأذن والحنجرة',
+      knownAs: 'د. حكيم',
+      title: 'أخصائي وجراح الأنف والأذن والحنجرة',
       tagline:
-        'تشخيص دقيق وعلاج آمن لمشكلات الأنف والأذن والحنجرة للكبار والأطفال، بأحدث تقنيات المناظير والجراحات الدقيقة.',
+        'تشخيص وعلاج أمراض الأنف والأذن والحنجرة وجراحاتها للكبار والأطفال، ومناظير الحنجرة والأذن والجيوب الأنفية، والسمعيات واضطرابات السمع والاتزان.',
     },
     seo: {
       description:
-        'د. عبد الحكيم عبد السلام، استشاري جراحة الأنف والأذن والحنجرة بعيادتي السنطة والقاهرة. احجز كشفك أونلاين لعلاج اللوزتين واللحمية والجيوب الأنفية والحاجز الأنفي ومشكلات السمع والاتزان.',
+        'د. عبد الحكيم عبد السلام (د. حكيم)، أخصائي وجراح الأنف والأذن والحنجرة، ماجستير الأنف والأذن والحنجرة من جامعة الأزهر. عيادتان في السنطة والقاهرة (السيدة زينب).',
     },
-    heroHighlights: ['جراحات المناظير الحديثة', 'رعاية خاصة للأطفال', 'متابعة دقيقة بعد العمليات'],
+    heroHighlights: [
+      'ماجستير الأنف والأذن والحنجرة – جامعة الأزهر',
+      'مناظير الحنجرة والأذن والجيوب الأنفية',
+      'للكبار والأطفال',
+    ],
     whyChooseUs: [
       {
+        icon: 'graduation',
+        title: 'ماجستير جامعة الأزهر',
+        text: 'ماجستير الأنف والأذن والحنجرة من جامعة الأزهر، ودراسات عليا في طب وجراحة الأنف والأذن والحنجرة.',
+      },
+      {
+        icon: 'badge',
+        title: 'عضويات متخصصة',
+        text: 'عضو الجمعيتين العربية والأوروبية لأمراض الأنف والجيوب الأنفية، والجمعية العربية لأمراض الأنف (PARS)، والزمالة المصرية والبورد المصري لجراحة الأنف والأذن والحنجرة والرأس والعنق.',
+      },
+      {
         icon: 'microscope',
-        title: 'تشخيص بالمنظار',
-        text: 'فحص الأنف والحنجرة بالمنظار داخل العيادة لتحديد سبب المشكلة بدقة من أول زيارة.',
-      },
-      {
-        icon: 'shield',
-        title: 'قرار علاجي مدروس',
-        text: 'خطة علاج واضحة تبدأ بالعلاج الدوائي، واللجوء للجراحة فقط عندما تكون هي الحل الأفضل.',
-      },
-      {
-        icon: 'heartHandshake',
-        title: 'متابعة بعد العملية',
-        text: 'زيارات متابعة منتظمة وتواصل مباشر مع العيادة للاطمئنان على التعافي خطوة بخطوة.',
+        title: 'مناظير وسمعيات',
+        text: 'مناظير الحنجرة والأذن والجيوب الأنفية، والسمعيات واضطرابات السمع والاتزان، للكبار والأطفال.',
       },
     ],
+    // Not a clinic patients book through the site, so it is shown for information only.
+    hospitalClinic: {
+      name: 'مستشفى الشيخ زايد التخصصي',
+      schedule: 'العيادة المسائية: الاثنين من 3 إلى 5 مساءً',
+      note: 'الحجز في هذه العيادة لا يتم من خلال الموقع.',
+    },
     bookingNotes: [
-      'يُرجى الحضور قبل موعدك بعشر دقائق.',
       'أحضر معك أي أشعة أو تحاليل أو روشتات سابقة إن وُجدت.',
       'ستتواصل العيادة معك لتأكيد الحجز، ويمكنك الإلغاء بالاتصال بالعيادة.',
     ],
@@ -41,34 +52,43 @@ const CONTENT = Object.freeze({
   en: {
     doctor: {
       name: 'Dr. Abdelhakim Abdelsalam',
-      title: 'Consultant ENT Surgeon',
+      knownAs: 'Dr. Hakim',
+      title: 'ENT Specialist and Surgeon',
       tagline:
-        'Accurate diagnosis and safe treatment of ear, nose, and throat conditions for adults and children, with the latest endoscopic and microsurgical techniques.',
+        'Diagnosis, treatment, and surgery of ear, nose, and throat conditions for adults and children, endoscopy of the larynx, ear, and sinuses, and audiology for hearing and balance disorders.',
     },
     seo: {
       description:
-        'Dr. Abdelhakim Abdelsalam, consultant ENT surgeon at clinics in El-Santa and Cairo. Book your visit online for tonsils, adenoids, sinuses, a deviated septum, and hearing or balance problems.',
+        'Dr. Abdelhakim Abdelsalam (Dr. Hakim), ENT specialist and surgeon with a Master’s degree in ENT from Al-Azhar University. Clinics in El-Santa and Cairo (El-Sayeda Zeinab).',
     },
-    heroHighlights: ['Modern endoscopic surgery', 'Dedicated care for children', 'Close follow-up after surgery'],
+    heroHighlights: [
+      'Master’s in ENT, Al-Azhar University',
+      'Endoscopy of the larynx, ear, and sinuses',
+      'Adults and children',
+    ],
     whyChooseUs: [
       {
+        icon: 'graduation',
+        title: 'Al-Azhar University Master’s',
+        text: 'A Master’s degree in ENT from Al-Azhar University, and postgraduate studies in ENT medicine and surgery.',
+      },
+      {
+        icon: 'badge',
+        title: 'Specialist memberships',
+        text: 'Member of the Arab and European societies for nose and sinus diseases, the Pan Arab Rhinology Society (PARS), and the Egyptian Fellowship and Egyptian Board of ENT and Head and Neck Surgery.',
+      },
+      {
         icon: 'microscope',
-        title: 'Endoscopic diagnosis',
-        text: 'Endoscopic examination of the nose and throat in the clinic to find the exact cause from the first visit.',
-      },
-      {
-        icon: 'shield',
-        title: 'A considered treatment plan',
-        text: 'A clear plan that starts with medication, turning to surgery only when it is the best option.',
-      },
-      {
-        icon: 'heartHandshake',
-        title: 'Follow-up after surgery',
-        text: 'Regular follow-up visits and direct contact with the clinic to check on your recovery step by step.',
+        title: 'Endoscopy and audiology',
+        text: 'Endoscopy of the larynx, ear, and sinuses, and audiology for hearing and balance disorders, for adults and children.',
       },
     ],
+    hospitalClinic: {
+      name: 'Sheikh Zayed Specialized Hospital',
+      schedule: 'Evening clinic: Mondays, 3 to 5 PM',
+      note: 'Visits at this clinic are not booked through this site.',
+    },
     bookingNotes: [
-      'Please arrive ten minutes before your appointment.',
       'Bring any previous scans, test results, or prescriptions you have.',
       'The clinic will contact you to confirm the booking. To cancel, call the clinic.',
     ],

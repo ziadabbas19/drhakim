@@ -67,7 +67,15 @@ cd frontend; npm install; npm run dev
 - Website: <http://localhost:5173>
 - API: <http://localhost:5000/api>
 
-`npm run migrate` applies every pending migration. On an existing database, the bilingual migration keeps all current text as the Arabic version and leaves English empty (the site shows Arabic until English is added). Running `npm run seed` again adds English text to sample rows that still have their original Arabic sample values, without touching anything you have edited. The reviews migration removes the old testimonial items from the About page; patient reviews now have their own section (see [Patient reviews](#patient-reviews)).
+`npm run migrate` applies every pending migration. On an existing database, the bilingual migration keeps all current text as the Arabic version and leaves English empty (the site shows Arabic until English is added). Running `npm run seed` again adds English text to seeded rows whose Arabic text is unchanged, without touching anything you have edited. The reviews migration removes the old testimonial items from the About page; patient reviews now have their own section (see [Patient reviews](#patient-reviews)).
+
+Earlier versions seeded invented sample content (statistics, a career history, qualifications, services, clinic addresses and hours, phone numbers). The `replace-sample-content` migration replaces it on a database that was already seeded, and only where nobody edited it:
+
+- a sample service or About item is deleted while its text is exactly the sample text and no photo was added to it; the confirmed items are then added, unless one with the same title is already there;
+- a setting, or a clinic's name, city, address, phone, or map link, is replaced while it still holds the sample value;
+- a clinic's weekly hours are removed while they are exactly the sample hours. Bookings are never changed: if patients booked against the sample hours, they appear in the dashboard as bookings outside the working hours once real hours are saved.
+
+Anything you changed is kept as it is. The migration cannot be undone (the sample content is not restored).
 
 ## 4. First login
 
@@ -76,16 +84,16 @@ The dashboard has no public link. Open <http://localhost:5173/login> and sign in
 After the first login:
 
 1. **فريق العمل** — set each owner's full name and add the assistant's account.
-2. **إعدادات التواصل** — enter the real phone number, WhatsApp number, social links, and the note for patients in Arabic and English.
-3. **العيادات والمواعيد** — confirm clinic names and addresses in both languages, phone numbers, map links, weekly schedules, and clinic photos.
-4. **مكتبة الصور** — upload the doctor's portrait, the home page image, clinic photos, and surgery photos, and give each one alt text.
-5. **صفحة التعريف** — review the biography, qualifications, career, memberships, statistics, and the surgery gallery.
+2. **إعدادات التواصل** — the phone and WhatsApp number start as 01050066077; add the email, social links, and a note for patients if wanted.
+3. **العيادات والمواعيد** — add each clinic's weekly hours and visit length, check the map links, and add clinic photos. Until a clinic has hours, its card shows **اتصل للحجز** (call to book), and while no clinic has hours the booking page asks patients to call or message on WhatsApp.
+4. **مكتبة الصور** — add the doctor's photos with `npm run import:images` (see [Importing the doctor's photos](#importing-the-doctors-photos)) or upload them here, and give each one alt text.
+5. **صفحة التعريف** — review the biography, qualifications, career, and memberships, and add statistics only if the doctor provides real ones.
 
-The seeded clinics, phone numbers, WhatsApp number, biography, qualifications, career, statistics, and surgery gallery are sample content and must be reviewed with the doctor before launch. The site starts with no patient reviews: real patients add them from the site, and each one appears only after it is approved under **التقييمات** (see [Patient reviews](#patient-reviews)).
+The seed contains only details the doctor has confirmed (`backend/src/seeders/content.js` and `frontend/src/config/content.js`); everything else starts empty, see [Information still needed](#information-still-needed). The site starts with no patient reviews: real patients add them from the site, and each one appears only after it is approved under **التقييمات** (see [Patient reviews](#patient-reviews)).
 
 ## Languages, themes, and motion
 
-- **Languages.** The switch in the navbar toggles Arabic (default) and English and is remembered on the device. It sets `<html lang dir>`, the page title, and the description and social tags. All interface text lives in `frontend/src/i18n/ar.js` and `frontend/src/i18n/en.js`, which share the same keys (`npm test --prefix frontend` checks this). Static content that is not managed from the dashboard (the doctor's name and title, home page highlights, booking notes) is in `frontend/src/config/content.js`.
+- **Languages.** The switch in the navbar toggles Arabic (default) and English and is remembered on the device. It sets `<html lang dir>`, the page title, and the description and social tags. All interface text lives in `frontend/src/i18n/ar.js` and `frontend/src/i18n/en.js`, which share the same keys (`npm test --prefix frontend` checks this). Static content that is not managed from the dashboard (the doctor's name and title, home page highlights, the Sheikh Zayed Specialized Hospital evening clinic, booking notes) is in `frontend/src/config/content.js`.
 - **Bilingual content.** Clinics, services, contact notes, the About page, and image alt text have Arabic and English versions, edited side by side in the dashboard. Arabic is required, English is optional and falls back to Arabic when empty. The API returns one language for public requests (`?lang=ar|en` or the `Accept-Language` header, Arabic by default) and both languages to the dashboard. API messages, including validation errors, also follow the requested language.
 - **Themes.** The navbar switch offers light, dark, and "match device" (the default). Colors are defined only in `frontend/src/styles/tokens.css`, once per theme; components use the token names (`bg-surface`, `text-ink-muted`, …). The saved theme and language are applied by a small script in the page head before anything is drawn, so there is no flash.
 - **Motion.** Section reveals, staggered cards, page transitions, dialogs, and hover and press feedback all come from `frontend/src/styles/motion.css` and the components in `frontend/src/motion/`. Only `transform` and `opacity` are animated, sideways movement follows the reading direction, and everything is switched off for visitors who prefer reduced motion.
@@ -105,7 +113,28 @@ To set up Cloudinary:
 2. Copy the **Cloud name**, **API key**, and **API secret** into `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` on the production API, and set `STORAGE_PROVIDER=cloudinary`. `CLOUDINARY_FOLDER` (default `dr-hakim`) groups the files.
 3. Restart the API. The API refuses to start with `STORAGE_PROVIDER=cloudinary` if any of the three values is missing.
 
-Each image remembers where it was stored, so images uploaded during development are not moved to Cloudinary automatically; upload the real photos from the production dashboard.
+Each image remembers where it was stored, so images uploaded during development are not moved to Cloudinary automatically; upload the real photos from the production dashboard, or run the photo import with the production settings.
+
+## Importing the doctor's photos
+
+`npm run import:images` adds the doctor's photos from `images-source/` (at the project root, never committed) to the media library, through the storage configured in `backend/.env`, and shows each one in its place. JPEG, PNG, and WebP files are accepted, named as below with any of these extensions:
+
+| File | Goes to |
+| --- | --- |
+| `portrait-ad` | Kept in the library as received (its poster text and the hospital logo are never shown). A cut-out of the doctor alone, on a transparent background, becomes the **home page image**. |
+| `portrait-suit` | Cropped to the doctor (no channel logo or news ticker) and used as the **About page portrait**. |
+| `surgery-1`, `surgery-endoscope` | One item each in the About page's **operating room** gallery. |
+| `consented/*` | One **before and after** item each. Name each file after the procedure type (`ear-…`, `nose-…`, or `throat-…`); its title and alt text name the procedure type only. Only add photos whose patients gave written consent. |
+
+Any other file in `images-source/` is not imported. Each photo is imported once: running the import again skips photos already in the library, so nothing is duplicated and later changes from the dashboard are kept. A home page image or portrait that was already chosen is kept too (the imported one is still added to the library). The script prints what it did for each file.
+
+**The cut-out.** The background is removed once, at import time, by the IMG.LY background-removal model (`@imgly/background-removal-node`, a development dependency that only runs on the computer doing the import; note that it is licensed under the AGPL-3.0). The result is then cleaned up: only the largest shape is kept, its outline is smoothed and pulled slightly inwards, edge pixels take their colour from inside the shape (no light or dark halo in either theme), and the square runs from just above the head to just below the crossed arms, centred on the face. If the model cannot be loaded or the result does not look like one person, the doctor's part of the poster is used instead, in a rounded frame. On the site, a transparent image stands on a soft brand-coloured shape, and any other image is shown in a rounded frame, so the doctor can replace it from the dashboard with any photo.
+
+**In production**, run the import from your computer with the production settings in `backend/.env` (`STORAGE_PROVIDER=cloudinary`, the three `CLOUDINARY_*` values, and the production `DATABASE_URL`, `DB_SSL`), after `npm run migrate` has been run on that database:
+
+```powershell
+npm run import:images
+```
 
 ## Environment variables
 
@@ -152,18 +181,20 @@ Each image remembers where it was stored, so images uploaded during development 
 | root | `npm run dev` | Run API and website together |
 | root | `npm test` | Run the API, frontend, and browser tests |
 | root | `npm run test:e2e` | Run the browser tests only |
+| root | `npm run import:images` | Add the doctor's photos from `images-source/` (see [Importing the doctor's photos](#importing-the-doctors-photos)) |
 | root | `npm run screenshots` | Save mobile and desktop screenshots in both themes and languages to `e2e/screenshots`, without and then with published reviews |
 | backend | `npm run dev` | Run the API with auto-restart |
 | backend | `npm start` | Run the API in production mode |
 | backend | `npm run migrate` / `npm run migrate:undo` | Apply / revert the latest migration |
-| backend | `npm run seed` | Create owner accounts and the sample clinics, services, settings, and About content. Safe to run again: existing data is kept |
+| backend | `npm run seed` | Create owner accounts and the confirmed clinics, services, settings, and About content. Safe to run again: existing data is kept |
+| backend | `npm run import:images [folder]` | Add the doctor's photos to the media library (default folder: `images-source/`) |
 | backend | `npm test` | Run the API tests |
 | frontend | `npm run build` | Build the website into `frontend/dist` |
 | frontend | `npm test` | Check the translation files and render the pages against simulated API replies |
 
 ## Tests
 
-- **API tests** (`npm test --prefix backend`) start the API against a separate database, `DB_NAME` + `_test` (or `TEST_DATABASE_URL`), which is created automatically if your database user may create databases. Before each run it is rebuilt from the migrations, including rolling the latest migration back and forward again, and filled with the sample content and two test accounts. The tests delete everything in that database and refuse to run against any database whose name does not end in `_test`, so your development data is never touched. Images go to a temporary folder, and Cloudinary is tested with a simulated server.
+- **API tests** (`npm test --prefix backend`) start the API against a separate database, `DB_NAME` + `_test` (or `TEST_DATABASE_URL`), which is created automatically if your database user may create databases. Before each run it is rebuilt from the migrations, including rolling the latest migration back and forward again, and filled with the seeded content and two test accounts. They also check that none of the removed sample facts is left in the seeds, the site content, the translations, the page tags, or the structured data, that the sample-content migration keeps anything edited, and that the photo import can run twice without creating copies. The tests delete everything in that database and refuse to run against any database whose name does not end in `_test`, so your development data is never touched. Images go to a temporary folder, and Cloudinary is tested with a simulated server.
 - **Frontend tests** (`npm test --prefix frontend`, Vitest) check that both translation files have the same keys and placeholders and that every key used in the code exists. They also render the site in a simulated browser with made-up API replies (empty content, missing lists, failed or malformed replies) to make sure a page never goes blank: missing content shows a short "will be added soon" message, and a part of a page that fails shows a message with a reload button while the rest of the page keeps working.
 - **Browser tests** (`npm run test:e2e` from the root) build the website and run it against a fresh test database on ports 5055 (API) and 5175 (website). They first open the home and About pages exactly as `npm run seed` leaves them, then cover the language and theme switches, motion and reduced motion, the media library, the About page editing, submitting and moderating a review through to the home page, and automated color-contrast checks in both themes. Install the browser once with `npx playwright install chromium`.
 
@@ -182,7 +213,17 @@ Visitors add a review from the **أضف تقييمك** button on the home and Ab
 
 ## Patient photos
 
-The dashboard reminds editors that patient photos need the patient's written consent and must not show the face or anything that identifies them.
+The About page has two photo lists: the operating room gallery and **قبل وبعد** (before and after). Both remind editors in the dashboard that patient photos need the patient's written consent and must not show the face or anything that identifies them.
+
+## Information still needed
+
+These details are not known yet, so they are left empty rather than invented. Add them from the dashboard once the doctor confirms them:
+
+- each clinic's working days and hours, and its visit length (`العيادات والمواعيد`); until then patients are asked to call;
+- years of experience, numbers of patients or operations, or any other statistics (`صفحة التعريف` → الإحصائيات); the statistics bar and the number on the home page stay hidden while the list is empty;
+- the dates of each career step and the institution for the postgraduate studies (`صفحة التعريف`);
+- the email address and social media links (`إعدادات التواصل`);
+- clinic photos, and the photos for the About page gallery.
 
 ## Deployment notes
 

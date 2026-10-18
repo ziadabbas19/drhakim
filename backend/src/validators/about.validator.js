@@ -20,13 +20,17 @@ const ITEM_FIELDS = {
 
 const requiredKey = (name) => (name === 'value' ? name : `${name}Ar`);
 
-// The fields each list uses, and which of them must be filled in.
+const PHOTO_ITEM = { fields: ['title', 'body', 'category', 'gallery'], required: ['title'] };
+
+// The fields each list uses, and which of them must be filled in. The awarding institution and
+// the period are optional, so a qualification or a career step can be listed before they are known.
 const ITEM_RULES = {
-  [ABOUT_ITEM_TYPES.QUALIFICATION]: { fields: ['title', 'subtitle'], required: ['title', 'subtitle'] },
-  [ABOUT_ITEM_TYPES.TIMELINE]: { fields: ['title', 'subtitle', 'body'], required: ['title', 'subtitle'] },
+  [ABOUT_ITEM_TYPES.QUALIFICATION]: { fields: ['title', 'subtitle'], required: ['title'] },
+  [ABOUT_ITEM_TYPES.TIMELINE]: { fields: ['title', 'subtitle', 'body'], required: ['title'] },
   [ABOUT_ITEM_TYPES.MEMBERSHIP]: { fields: ['title'], required: ['title'] },
   [ABOUT_ITEM_TYPES.STAT]: { fields: ['value', 'title'], required: ['value', 'title'] },
-  [ABOUT_ITEM_TYPES.SURGERY]: { fields: ['title', 'body', 'category', 'gallery'], required: ['title'] },
+  [ABOUT_ITEM_TYPES.SURGERY]: PHOTO_ITEM,
+  [ABOUT_ITEM_TYPES.RESULT]: PHOTO_ITEM,
 };
 
 const buildItemSchemas = ({ fields: names, required }) =>

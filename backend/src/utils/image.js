@@ -32,6 +32,7 @@ export const processImage = async (buffer) => {
     .toBuffer({ resolveWithObject: true });
 
   const placeholder = await toWebp(data, { width: MEDIA.placeholderWidth }).toBuffer();
+  const { isOpaque } = await sharp(data).stats();
 
   return {
     buffer: data,
@@ -39,6 +40,7 @@ export const processImage = async (buffer) => {
     height: info.height,
     sizeBytes: info.size,
     mimeType: OUTPUT_MIME_TYPE,
+    hasTransparency: !isOpaque,
     placeholder: `data:${OUTPUT_MIME_TYPE};base64,${placeholder.toString('base64')}`,
     variants: MEDIA.variantWidths
       .filter((width) => width < info.width)

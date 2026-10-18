@@ -44,4 +44,9 @@ export const ABOUT_SECTIONS = Object.freeze([
     eyebrow: 'about.surgeries.eyebrow',
     description: 'about.surgeries.description',
   }),
+  itemSection('result', {
+    title: 'about.results.title',
+    eyebrow: 'about.results.eyebrow',
+    description: 'about.results.description',
+  }),
 ]);

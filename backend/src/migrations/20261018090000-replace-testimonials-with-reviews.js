@@ -1,20 +1,8 @@
 import { buildColumnHelpers, createTableWith } from './helpers/columns.js';
+import { ABOUT_ITEM_TYPE_ENUM, replaceEnum } from './helpers/enums.js';
 
-const ABOUT_TYPE_ENUM = 'enum_about_items_type';
 const TYPES_WITHOUT_TESTIMONIAL = ['qualification', 'timeline', 'membership', 'stat', 'surgery'];
 const TYPES_WITH_TESTIMONIAL = ['qualification', 'timeline', 'membership', 'stat', 'testimonial', 'surgery'];
-
-const enumLiteral = (values) => values.map((value) => `'${value}'`).join(', ');
-
-// Postgres cannot remove a value from an enum, so the type is recreated with the new list.
-const replaceAboutTypeEnum = async (runSql, values) => {
-  await runSql(`ALTER TYPE "${ABOUT_TYPE_ENUM}" RENAME TO "${ABOUT_TYPE_ENUM}_old"`);
-  await runSql(`CREATE TYPE "${ABOUT_TYPE_ENUM}" AS ENUM (${enumLiteral(values)})`);
-  await runSql(
-    `ALTER TABLE about_items ALTER COLUMN type TYPE "${ABOUT_TYPE_ENUM}" USING type::text::"${ABOUT_TYPE_ENUM}"`,
-  );
-  await runSql(`DROP TYPE "${ABOUT_TYPE_ENUM}_old"`);
-};
 
 // Sample testimonials are replaced by reviews that patients submit and the doctor approves.
 export async function up(queryInterface, Sequelize) {
@@ -29,7 +17,7 @@ export async function up(queryInterface, Sequelize) {
          AND owner_id IN (SELECT id FROM about_items WHERE type = 'testimonial')`,
     );
     await runSql(`DELETE FROM about_items WHERE type = 'testimonial'`);
-    await replaceAboutTypeEnum(runSql, TYPES_WITHOUT_TESTIMONIAL);
+    await replaceEnum(runSql, ABOUT_ITEM_TYPE_ENUM, TYPES_WITHOUT_TESTIMONIAL);
     await queryInterface.removeColumn('about_items', 'has_consent', { transaction });
 
     await createTable('reviews', {
@@ -73,6 +61,6 @@ export async function down(queryInterface, Sequelize) {
       { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false },
       { transaction },
     );
-    await replaceAboutTypeEnum(runSql, TYPES_WITH_TESTIMONIAL);
+    await replaceEnum(runSql, ABOUT_ITEM_TYPE_ENUM, TYPES_WITH_TESTIMONIAL);
   });
 }

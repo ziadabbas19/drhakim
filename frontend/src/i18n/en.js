@@ -81,26 +81,25 @@ export default {
 
   cta: {
     title: 'Having trouble with your ears, nose, or throat?',
-    description:
-      'Book online at the clinic nearest to you in under a minute, and the clinic will contact you to confirm.',
+    description: 'Book a visit at the clinic nearest to you, and the clinic will contact you to confirm.',
     book: 'Book a visit now',
   },
 
   home: {
     hero: {
-      clinicHours: 'Clinic hours',
-      bookOnline: 'Book online',
-      bookOnlineHint: 'in under a minute',
+      clinicsLink: 'Clinics and addresses',
+      clinics: 'Two clinics',
+      clinicsHint: 'El-Santa and Cairo',
     },
     services: {
       eyebrow: 'Services and surgery',
       title: 'What we offer our patients',
-      description: 'From endoscopic examination to precise surgery, a clear treatment plan for every case.',
+      description: 'Endoscopy and surgery of the ear, nose, and throat for adults and children, and audiology and balance.',
       link: 'All services',
     },
     why: {
       eyebrow: 'Why choose us',
-      title: 'Care that starts with the right diagnosis',
+      title: 'Qualifications and specialist memberships',
     },
     clinics: {
       eyebrow: 'Clinics',
@@ -116,7 +115,7 @@ export default {
     portraitAlt: 'Portrait of {{name}}',
     qualifications: 'Qualifications',
     gallery: {
-      eyebrow: 'Inside the clinic',
+      eyebrow: 'Gallery',
       title: 'Photos',
     },
     timeline: {
@@ -129,11 +128,18 @@ export default {
     },
     surgeries: {
       eyebrow: 'Surgery gallery',
-      title: 'Examples of our surgery',
-      description: 'A look at some of the procedures the doctor performs, by specialty.',
-      filterLabel: 'Filter surgeries by specialty',
+      title: 'From the operating room',
+      description: 'Photos of the doctor during operations and endoscopic examination.',
+    },
+    results: {
+      eyebrow: 'Before and after',
+      title: 'Before and after photos',
+      description: "Patients' photos are published with their written consent.",
+    },
+    cases: {
+      filterLabel: 'Filter by specialty',
       all: 'All specialties',
-      empty: 'No surgeries in this specialty yet',
+      empty: 'No photos in this specialty yet',
       viewImages: 'View photos of {{title}}',
       imageCount: { zero: 'No photos', one: '{{count}} photo', other: '{{count}} photos' },
     },
@@ -143,16 +149,17 @@ export default {
       timeline: 'Career highlights will be added soon',
       membership: 'Professional memberships will be added soon',
       gallery: 'Photos will be added soon',
-      surgery: 'Surgery examples will be added soon',
+      surgery: 'Photos from the operating room will be added soon',
+      result: 'Before and after photos will be added soon',
     },
   },
 
   services: {
     pageTitle: 'Services and surgery',
     eyebrow: 'Services and surgery',
-    title: 'Complete ear, nose, and throat care',
+    title: 'ENT diagnosis, treatment, and surgery',
     description:
-      'Examination, diagnosis, medical and surgical treatment for adults and children, with close follow-up until full recovery.',
+      'For adults and children: endoscopy of the nose, sinuses, ear, throat, and larynx, audiology and balance, and ENT surgery.',
     empty: 'No services to show right now',
   },
 
@@ -161,10 +168,12 @@ export default {
     eyebrow: 'Clinics',
     title: 'Clinics and opening hours',
     description:
-      'The doctor sees patients at clinics in El-Santa and Cairo. Choose the one nearest to you and book directly.',
+      'The doctor sees patients at clinics in El-Santa and Cairo (El-Sayeda Zeinab). Choose the one nearest to you.',
     empty: 'No clinics are available right now',
     workingHours: 'Opening hours',
-    noSchedule: 'Opening hours have not been set yet.',
+    noSchedule: 'Opening hours are not published yet; call us to book.',
+    callToBook: 'Call to book',
+    hospital: 'Hospital clinic',
     visitLength: 'Each visit takes about {{duration}}',
     bookHere: 'Book at this clinic',
     map: 'View on map',
@@ -197,7 +206,7 @@ export default {
   booking: {
     pageTitle: 'Book a visit',
     eyebrow: 'Online booking',
-    title: 'Book your visit in a minute',
+    title: 'Book your visit',
     description: 'Choose a clinic, a day, and a time, then enter your details to confirm.',
     beforeVisit: 'Before your visit',
     needHelp: 'Need help?',
@@ -208,7 +217,10 @@ export default {
       time: 'Choose a time',
       patient: 'Patient details',
     },
-    noClinics: 'No clinics are open for booking right now',
+    byPhone: {
+      title: 'Book by phone',
+      text: 'Online booking opens once clinic hours are published. To book now, call us or message us on WhatsApp.',
+    },
     noDates: 'No days are available at this clinic in the next thirty days',
     noTimes: 'No times are available on this day, please choose another day',
     available: 'Available',
@@ -358,7 +370,7 @@ export default {
     usage: {
       clinic: { coverImage: '{{name}} cover', gallery: '{{name}} photos' },
       service: { image: '{{name}} service' },
-      aboutItem: { gallery: 'Surgery gallery: {{name}}' },
+      aboutItem: { gallery: 'About page: {{name}}' },
       site: {
         heroImage: 'Home page image',
         portrait: 'Doctor portrait',
@@ -588,14 +600,15 @@ export default {
     about: {
       title: 'About page',
       description:
-        'Everything shown on the About page and the home page: photos, biography, career, statistics, and the surgery gallery.',
+        'Everything shown on the About page and the home page: photos, biography, career, statistics, the surgery gallery, and before and after photos.',
       tabs: 'About page sections',
       profile: {
         tab: 'Biography and photos',
         images: 'Photos',
         texts: 'Text',
         heroImage: 'Home page image',
-        heroImageHint: "Shown next to the doctor's name at the top of the home page",
+        heroImageHint:
+          "Shown next to the doctor's name at the top of the home page. A PNG with a transparent background stands on a coloured shape; any other photo is shown in a frame.",
         portrait: 'Doctor portrait',
         aboutGallery: 'About page photos',
         headline: 'Headline',
@@ -634,7 +647,7 @@ export default {
         stat: {
           label: 'Statistics',
           item: 'Statistic',
-          fields: { value: 'Number', valueHint: 'For example +18 or +6,000', title: 'Description' },
+          fields: { value: 'Number', valueHint: 'Written exactly as it should appear on the site', title: 'Description' },
         },
         surgery: {
           label: 'Surgery gallery',
@@ -645,6 +658,11 @@ export default {
             category: 'Specialty',
             gallery: 'Procedure photos',
           },
+        },
+        result: {
+          label: 'Before and after',
+          item: 'Before and after photo',
+          fields: { title: 'Procedure type', body: 'Short description', category: 'Specialty', gallery: 'Photos' },
         },
       },
     },
@@ -728,6 +746,7 @@ export default {
       voice: 'Voice',
       child: 'Children',
       stethoscope: 'General check-up',
+      surgery: 'Surgery',
     },
     surgeryCategory: {
       none: 'No specialty',

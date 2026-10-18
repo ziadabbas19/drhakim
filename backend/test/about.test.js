@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, test } from 'node:test';
 import { sequelize } from '../src/models/index.js';
+import { SETTING_VALUES } from '../src/seeders/content.js';
 import { api, loginAs, useTestServer } from './support/api.js';
 import { createImage, imageForm } from './support/images.js';
 
@@ -14,9 +15,9 @@ before(async () => {
 const ENGLISH = { lang: 'en' };
 
 const PROFILE = {
-  headlineAr: 'تشخيص دقيق أولًا',
-  headlineEn: 'Accurate diagnosis first',
-  introAr: 'خبرة طويلة في علاج الأنف والأذن والحنجرة',
+  headlineAr: 'عنوان تجريبي',
+  headlineEn: 'A test headline',
+  introAr: 'مقدمة تجريبية',
   introEn: '',
   bioAr: '<p>نبذة قصيرة</p>',
   bioEn: '<p>A short biography</p>',
@@ -53,15 +54,18 @@ describe('About content permissions', () => {
 describe('Public About content', () => {
   test('is grouped by list and returned in the requested language', async () => {
     const english = await publicContent(ENGLISH);
-    assert.equal(english.profile.headline, 'Accurate diagnosis first, then safe and considered treatment');
-    assert.equal(english.items.stat[0].value, '+18');
-    assert.equal(english.items.stat[0].title, 'years of experience');
-    assert.equal(english.items.qualification.length, 4);
-    assert.equal(english.items.timeline[3].subtitle, '2020 – present');
+    assert.equal(english.profile.headline, SETTING_VALUES.headline.valueEn);
+    assert.equal(english.items.qualification[0].subtitle, 'Al-Azhar University');
+    assert.equal(english.items.timeline[1].subtitle, 'Mondays, 3 to 5 PM');
     assert.equal('titleAr' in english.items.membership[0], false);
 
     const arabic = await publicContent();
-    assert.equal(arabic.items.timeline[3].subtitle, '2020 – الآن');
+    assert.equal(arabic.items.timeline[1].body, 'مستشفى الشيخ زايد التخصصي');
+  });
+
+  test('statistics, surgeries, and before/after photos start empty', async () => {
+    const { items } = await publicContent();
+    assert.deepEqual([items.stat, items.surgery, items.result], [[], [], []]);
   });
 });
 
@@ -107,7 +111,7 @@ describe('About profile', () => {
     assert.equal(saved.body.data.portrait.id, portrait.id);
 
     const { profile } = await publicContent(ENGLISH);
-    assert.equal(profile.headline, 'Accurate diagnosis first');
+    assert.equal(profile.headline, PROFILE.headlineEn);
     assert.equal(profile.intro, PROFILE.introAr);
     assert.equal(profile.heroImage.id, hero.id);
     assert.deepEqual(
@@ -127,8 +131,16 @@ describe('About lists', () => {
     assert.equal(stat.status, 400);
     assert.equal(stat.body.data.fields.value, 'Value is required');
 
-    const timeline = await api.post(items('timeline'), { token, query: ENGLISH, body: { titleAr: 'استشاري' } });
-    assert.equal(timeline.body.data.fields.subtitleAr, 'Subtitle (Arabic) is required');
+    const result = await api.post(items('result'), { token, query: ENGLISH, body: { category: 'ear' } });
+    assert.equal(result.status, 400);
+    assert.equal(result.body.data.fields.titleAr, 'Title (Arabic) is required');
+
+    // The awarding institution and the period are optional until the doctor confirms them.
+    for (const type of ['qualification', 'timeline']) {
+      const created = await api.post(items(type), { token, body: { titleAr: 'عنوان بدون فترة' } });
+      assert.equal(created.status, 201);
+      await api.delete(`${items(type)}/${created.body.data.id}`, { token });
+    }
 
     const unknown = await api.post(items('awards'), { token, body: { titleAr: 'جائزة' } });
     assert.equal(unknown.status, 400);
@@ -193,42 +205,41 @@ describe('About lists', () => {
     assert.deepEqual(columns, []);
   });
 
-  test('surgery items carry ordered images and a category', async () => {
-    const [first, second] = await uploadImages(2);
-    const surgery = await createItem('surgery', {
-      titleAr: 'جراحة تجريبية',
-      titleEn: 'Sample surgery',
-      bodyAr: 'وصف قصير',
-      category: 'nose',
-      galleryIds: [first.id, second.id],
+  for (const type of ['surgery', 'result']) {
+    test(`${type} items carry ordered images and a category`, async () => {
+      const [first, second] = await uploadImages(2);
+      const item = await createItem(type, {
+        titleAr: 'عنصر تجريبي',
+        titleEn: 'Sample item',
+        bodyAr: 'وصف قصير',
+        category: 'nose',
+        galleryIds: [first.id, second.id],
+      });
+      assert.deepEqual(
+        item.gallery.map(({ id }) => id),
+        [first.id, second.id],
+      );
+
+      const reordered = await api.patch(`${items(type)}/${item.id}`, {
+        token,
+        body: { galleryIds: [second.id, first.id] },
+      });
+      assert.deepEqual(
+        reordered.body.data.gallery.map(({ id }) => id),
+        [second.id, first.id],
+      );
+
+      const listed = (await publicContent(ENGLISH)).items[type].find(({ id }) => id === item.id);
+      assert.equal(listed.title, 'Sample item');
+      assert.equal(listed.category, 'nose');
+      assert.equal(listed.gallery.length, 2);
+
+      const invalidCategory = await api.patch(`${items(type)}/${item.id}`, { token, body: { category: 'heart' } });
+      assert.equal(invalidCategory.status, 400);
+
+      await api.delete(`${items(type)}/${item.id}`, { token });
+      const { body: library } = await api.get('/admin/media', { token, query: { limit: 100 } });
+      assert.equal(library.data.items.find(({ id }) => id === first.id).usageCount, 0);
     });
-    assert.deepEqual(
-      surgery.gallery.map(({ id }) => id),
-      [first.id, second.id],
-    );
-
-    const reordered = await api.patch(`${items('surgery')}/${surgery.id}`, {
-      token,
-      body: { galleryIds: [second.id, first.id] },
-    });
-    assert.deepEqual(
-      reordered.body.data.gallery.map(({ id }) => id),
-      [second.id, first.id],
-    );
-
-    const publicSurgery = (await publicContent(ENGLISH)).items.surgery.find(({ id }) => id === surgery.id);
-    assert.equal(publicSurgery.title, 'Sample surgery');
-    assert.equal(publicSurgery.category, 'nose');
-    assert.equal(publicSurgery.gallery.length, 2);
-
-    const invalidCategory = await api.patch(`${items('surgery')}/${surgery.id}`, {
-      token,
-      body: { category: 'heart' },
-    });
-    assert.equal(invalidCategory.status, 400);
-
-    await api.delete(`${items('surgery')}/${surgery.id}`, { token });
-    const { body: library } = await api.get('/admin/media', { token, query: { limit: 100 } });
-    assert.equal(library.data.items.find(({ id }) => id === first.id).usageCount, 0);
-  });
+  }
 });

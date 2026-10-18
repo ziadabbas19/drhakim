@@ -5,9 +5,14 @@ import { Icon } from './Icon.jsx';
 
 const toSrcSet = (variants = []) => variants.map(({ url, width }) => `${url} ${width}w`).join(', ');
 
+// The part of the photo kept in view when it is cropped to fit its frame (set for imported photos).
+const focusOf = ({ focusX, focusY }) =>
+  Number.isFinite(focusX) && Number.isFinite(focusY) ? `${focusX}% ${focusY}%` : undefined;
+
 // A library image: the browser picks the right size from srcset, the intrinsic width and height
 // reserve its space, and a blurred copy shows until it loads. `priority` is for the image at the
-// top of the page, which loads immediately instead of lazily.
+// top of the page, which loads immediately instead of lazily. A cut-out (transparent background)
+// shows what is behind it, so it gets neither the backdrop nor the blurred copy.
 export const ResponsiveImage = ({ media, alt = '', sizes = '100vw', priority = false, className, imgClassName }) => {
   const { pick } = useI18n();
   const [isLoaded, setIsLoaded] = useState(priority);
@@ -15,11 +20,12 @@ export const ResponsiveImage = ({ media, alt = '', sizes = '100vw', priority = f
     if (image?.complete) setIsLoaded(true);
   }, []);
   const srcSet = toSrcSet(media.variants);
+  const hasBackdrop = !media.hasTransparency;
 
   return (
     <span
-      className={cn('block overflow-hidden bg-surface-sunken bg-cover bg-center', className)}
-      style={media.placeholder ? { backgroundImage: `url("${media.placeholder}")` } : undefined}
+      className={cn('block overflow-hidden', hasBackdrop && 'bg-surface-sunken bg-cover bg-center', className)}
+      style={hasBackdrop && media.placeholder ? { backgroundImage: `url("${media.placeholder}")` } : undefined}
     >
       <img
         ref={markLoadedIfCached}
@@ -34,6 +40,7 @@ export const ResponsiveImage = ({ media, alt = '', sizes = '100vw', priority = f
         decoding="async"
         data-image-state={isLoaded ? 'loaded' : 'loading'}
         onLoad={() => setIsLoaded(true)}
+        style={{ objectPosition: focusOf(media) }}
         className={cn('size-full object-cover', imgClassName)}
       />
     </span>

@@ -1,5 +1,6 @@
 import { sequelize } from '../models/index.js';
 
+const ARABIC_SUFFIX = 'Ar';
 const ENGLISH_SUFFIX = 'En';
 
 export const seedIfEmpty = async (
@@ -26,12 +27,14 @@ export const createMissing = async (Model, rows, uniqueKey) => {
   return created;
 };
 
-// Adds the English sample text to rows seeded before English existed. A row is matched on
-// `matchKeys` (still the sample values), and only English columns that are empty are filled.
-export const fillMissingTranslations = async (Model, rows, matchKeys) => {
+// Adds the English text to rows seeded before English existed. A row is matched on `matchKeys`
+// and on every Arabic field of the seed row, so only rows whose Arabic text is unchanged get it,
+// and only English columns that are empty are filled.
+export const fillMissingTranslations = async (Model, rows, matchKeys = []) => {
   let updated = 0;
   for (const row of rows) {
-    const record = await Model.findOne({ where: Object.fromEntries(matchKeys.map((key) => [key, row[key]])) });
+    const keys = new Set([...matchKeys, ...Object.keys(row).filter((key) => key.endsWith(ARABIC_SUFFIX))]);
+    const record = await Model.findOne({ where: Object.fromEntries([...keys].map((key) => [key, row[key]])) });
     const missing = Object.keys(row).filter((key) => key.endsWith(ENGLISH_SUFFIX) && row[key] && !record?.[key]);
     if (!record || !missing.length) continue;
     await record.update(Object.fromEntries(missing.map((key) => [key, row[key]])));

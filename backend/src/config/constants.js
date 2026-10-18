@@ -25,8 +25,11 @@ export const ABOUT_ITEM_TYPES = Object.freeze({
   MEMBERSHIP: 'membership',
   STAT: 'stat',
   SURGERY: 'surgery',
+  // Before and after photos, published with the patient's consent.
+  RESULT: 'result',
 });
 
+// Specialties used to group surgery and before/after items.
 export const SURGERY_CATEGORIES = Object.freeze(['nose', 'ear', 'throat']);
 
 export const RICH_TEXT_MAX_LENGTH = 20_000;

@@ -1,7 +1,7 @@
 /*
   Motion primitives. Everything here animates transform and opacity only, so nothing shifts the
   layout. Components use them through <Reveal>, <Stagger>, <PageTransition>, the dialog styles,
-  and the `lift` / `press` utilities, never with animation code of their own.
+  and the `lift` / `press` / `float-after-reveal` classes, never with animation code of their own.
 */
 :root {
   --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -58,6 +58,18 @@
 [data-visible] > [data-reveal] {
   opacity: 1;
   transform: none;
+}
+
+/* A slow float inside a <Reveal>, starting once the reveal has landed (the hero portrait). */
+@keyframes float {
+  50% {
+    transform: translate3d(0, -0.5rem, 0);
+  }
+}
+
+[data-visible] .float-after-reveal {
+  animation: float 6s ease-in-out infinite;
+  animation-delay: calc(var(--motion-reveal) + var(--reveal-delay, 0ms));
 }
 
 /* Route changes (PageTransition) */
@@ -201,6 +213,7 @@ dialog[data-closing]::backdrop {
   .page-enter,
   .pop-in,
   .slide-in,
+  [data-visible] .float-after-reveal,
   dialog[open],
   dialog[open]::backdrop,
   dialog[data-closing],

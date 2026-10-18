@@ -2,10 +2,9 @@ import { useEffect } from 'react';
 import { REVIEW_LIMITS } from '../../config/constants.js';
 import { useContent } from '../../hooks/useContent.js';
 import { useI18n } from '../../hooks/useI18n.js';
-import { setStructuredData } from '../../utils/documentMeta.js';
+import { SITE_URL, setStructuredData } from '../../utils/documentMeta.js';
+import { physicianData } from '../../utils/structuredData.js';
 import { Stars } from './Stars.jsx';
-
-const SITE_URL = (import.meta.env.VITE_SITE_URL || window.location.origin).replace(/\/$/, '');
 
 const ratingRange = { bestRating: REVIEW_LIMITS.maxRating, worstRating: 1 };
 
@@ -35,10 +34,7 @@ export const useReviewsStructuredData = (summary, reviews) => {
   useEffect(() => {
     if (!summary?.count || !reviews?.length) return undefined;
     return setStructuredData('reviews', {
-      '@context': 'https://schema.org',
-      '@type': 'Physician',
-      name: doctor.name,
-      url: SITE_URL,
+      ...physicianData(doctor, SITE_URL),
       aggregateRating: {
         '@type': 'AggregateRating',
         ratingValue: summary.average,
@@ -53,5 +49,5 @@ export const useReviewsStructuredData = (summary, reviews) => {
         ...(review.comment && { reviewBody: review.comment }),
       })),
     });
-  }, [summary, reviews, doctor.name]);
+  }, [summary, reviews, doctor]);
 };

@@ -5,7 +5,7 @@ import { Button } from '../../components/Button.jsx';
 import { Container } from '../../components/Container.jsx';
 import { GlowBlob } from '../../components/GlowBlob.jsx';
 import { Icon } from '../../components/Icon.jsx';
-import { ResponsiveImage } from '../../components/ResponsiveImage.jsx';
+import { Portrait } from '../../components/Portrait.jsx';
 import { PATHS } from '../../config/navigation.js';
 import { useContent } from '../../hooks/useContent.js';
 import { useI18n } from '../../hooks/useI18n.js';
@@ -14,29 +14,20 @@ import { Reveal } from '../../motion/Reveal.jsx';
 const HERO_IMAGE_SIZES = '(min-width: 1024px) 28rem, (min-width: 640px) 24rem, 18rem';
 
 // The illustrated card is shown until a home page image is added from the dashboard.
-const HeroArtwork = ({ image, alt }) =>
-  image ? (
-    <ResponsiveImage
-      media={image}
-      alt={alt}
-      sizes={HERO_IMAGE_SIZES}
-      priority
-      className="aspect-square rounded-[2.5rem] shadow-soft"
-    />
-  ) : (
-    <div
-      aria-hidden="true"
-      className="relative aspect-square rounded-[2.5rem] bg-linear-to-br from-hero-from via-hero-via to-hero-to shadow-soft"
-    >
-      <div className="absolute inset-8 rounded-full border border-on-inverse/15" />
-      <div className="absolute inset-16 rounded-full border border-on-inverse/20" />
-      <div className="absolute inset-0 grid place-items-center">
-        <span className="grid size-32 place-items-center rounded-full bg-on-inverse/10 text-on-inverse backdrop-blur-sm sm:size-40">
-          <Icon name="ear" className="size-16 sm:size-20" strokeWidth={1.5} />
-        </span>
-      </div>
+const HeroArtwork = () => (
+  <div
+    aria-hidden="true"
+    className="relative aspect-square rounded-[2.5rem] bg-linear-to-br from-hero-from via-hero-via to-hero-to shadow-soft"
+  >
+    <div className="absolute inset-8 rounded-full border border-on-inverse/15" />
+    <div className="absolute inset-16 rounded-full border border-on-inverse/20" />
+    <div className="absolute inset-0 grid place-items-center">
+      <span className="grid size-32 place-items-center rounded-full bg-on-inverse/10 text-on-inverse backdrop-blur-sm sm:size-40">
+        <Icon name="ear" className="size-16 sm:size-20" strokeWidth={1.5} />
+      </span>
     </div>
-  );
+  </div>
+);
 
 const HeroVisual = ({ image, headlineStat }) => {
   const { t } = useI18n();
@@ -44,14 +35,24 @@ const HeroVisual = ({ image, headlineStat }) => {
 
   return (
     <div className="relative mx-auto w-full max-w-72 sm:max-w-sm lg:max-w-md">
-      <HeroArtwork image={image} alt={t('about.portraitAlt', { name: doctor.name })} />
+      {image ? (
+        <Portrait
+          media={image}
+          alt={t('about.portraitAlt', { name: doctor.name })}
+          sizes={HERO_IMAGE_SIZES}
+          priority
+          className="aspect-square"
+        />
+      ) : (
+        <HeroArtwork />
+      )}
       <div className="absolute -bottom-5 -inset-s-3 flex items-center gap-3 rounded-2xl bg-surface p-3 pe-5 shadow-soft sm:-inset-s-8">
         <span className="grid size-11 place-items-center rounded-xl bg-success-soft text-success-ink">
-          <Icon name="calendarCheck" />
+          <Icon name="mapPin" />
         </span>
         <span className="text-sm leading-tight">
-          <span className="block font-extrabold text-ink-strong">{t('home.hero.bookOnline')}</span>
-          <span className="text-ink-subtle">{t('home.hero.bookOnlineHint')}</span>
+          <span className="block font-extrabold text-ink-strong">{t('home.hero.clinics')}</span>
+          <span className="text-ink-subtle">{t('home.hero.clinicsHint')}</span>
         </span>
       </div>
       {headlineStat && (
@@ -66,7 +67,8 @@ const HeroVisual = ({ image, headlineStat }) => {
   );
 };
 
-// The heading and tagline only move in (no fade), so the page's main content paints immediately.
+// The heading and tagline only move in (no fade), so the page's text paints immediately. The
+// photo slides in from the end side (the left in Arabic, the right in English) and fades in.
 export const Hero = ({ heroImage, headlineStat }) => {
   const { t } = useI18n();
   const { doctor, heroHighlights } = useContent();
@@ -96,7 +98,7 @@ export const Hero = ({ heroImage, headlineStat }) => {
           <Reveal delay={180} className="flex flex-wrap gap-3">
             <BookingButton size="lg" />
             <Button as={Link} to={PATHS.clinics} size="lg" variant="secondary" icon="mapPin">
-              {t('home.hero.clinicHours')}
+              {t('home.hero.clinicsLink')}
             </Button>
           </Reveal>
           <Reveal as="ul" delay={240} className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-bold text-ink-muted">
@@ -108,7 +110,7 @@ export const Hero = ({ heroImage, headlineStat }) => {
             ))}
           </Reveal>
         </div>
-        <Reveal variant="rise" delay={120}>
+        <Reveal variant="end" delay={120} data-hero-visual="">
           <HeroVisual image={heroImage} headlineStat={headlineStat} />
         </Reveal>
       </Container>

@@ -9,13 +9,17 @@ import { PhoneLink } from '../../components/PhoneLink.jsx';
 import { MediaImage } from '../../components/ResponsiveImage.jsx';
 import { bookingPathFor } from '../../config/navigation.js';
 import { useI18n } from '../../hooks/useI18n.js';
+import { telLink } from '../../utils/links.js';
+import { takesOnlineBookings } from './schedule.js';
 import { WeeklySchedule } from './WeeklySchedule.jsx';
 
 const CARD_IMAGE_SIZES = '(min-width: 768px) 50vw, 100vw';
 
 // headingLevel follows the page: 2 directly under the page title, 3 inside a titled section.
+// Until a clinic's hours are published, patients are asked to call instead of booking online.
 export const ClinicCard = ({ clinic, showSchedule = true, showGallery = false, headingLevel = 3 }) => {
   const { t } = useI18n();
+  const isBookable = takesOnlineBookings(clinic);
   const Heading = `h${headingLevel}`;
   const Subheading = `h${headingLevel + 1}`;
 
@@ -42,9 +46,11 @@ export const ClinicCard = ({ clinic, showSchedule = true, showGallery = false, h
           <InfoRow icon="phone">
             <PhoneLink phone={clinic.phone} />
           </InfoRow>
-          <InfoRow icon="clock">
-            {t('clinics.visitLength', { duration: t('common.minutes', { count: clinic.slotDurationMinutes }) })}
-          </InfoRow>
+          {isBookable && (
+            <InfoRow icon="clock">
+              {t('clinics.visitLength', { duration: t('common.minutes', { count: clinic.slotDurationMinutes }) })}
+            </InfoRow>
+          )}
         </ul>
 
         {showSchedule && (
@@ -64,9 +70,15 @@ export const ClinicCard = ({ clinic, showSchedule = true, showGallery = false, h
         )}
 
         <div className="mt-auto flex flex-wrap gap-2 pt-1">
-          <Button as={Link} to={bookingPathFor(clinic.id)} icon="calendar">
-            {t('clinics.bookHere')}
-          </Button>
+          {isBookable ? (
+            <Button as={Link} to={bookingPathFor(clinic.id)} icon="calendar">
+              {t('clinics.bookHere')}
+            </Button>
+          ) : (
+            <Button href={telLink(clinic.phone)} icon="phone">
+              {t('clinics.callToBook')}
+            </Button>
+          )}
           {clinic.mapUrl && (
             <Button href={clinic.mapUrl} external variant="secondary" icon="external">
               {t('clinics.map')}

@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
-import { STORAGE_KEYS, presetPreferences } from '../support.js';
+import { DOCTOR_PHONE } from '../../backend/src/seeders/content.js';
+import { STORAGE_KEYS, adminRequest, presetPreferences } from '../support.js';
 
 const html = (page) => page.locator('html');
 
@@ -21,7 +22,7 @@ test.describe('Language', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Clinics and opening hours' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'El-Santa Clinic' })).toBeVisible();
     await expect(page).toHaveTitle('Clinics and hours | Dr. Abdelhakim Abdelsalam');
-    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /consultant ENT surgeon/);
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /ENT specialist and surgeon/);
     await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute('content', 'en_US');
 
     await page.reload();
@@ -35,17 +36,26 @@ test.describe('Language', () => {
 
   test('phone numbers stay left to right inside Arabic text', async ({ page }) => {
     await page.goto('/clinics');
-    const phone = page.getByRole('link', { name: '0403461275' });
+    const phone = page.getByRole('link', { name: DOCTOR_PHONE }).first();
     await expect(phone).toHaveAttribute('dir', 'ltr');
     await expect(phone).toHaveCSS('direction', 'ltr');
   });
 
-  test('dates and times follow the language', async ({ page }) => {
-    await page.goto('/clinics');
-    await expect(page.getByText('السبت').first()).toBeVisible();
-    await page.getByRole('button', { name: /English/ }).click();
-    await expect(page.getByText('Saturday').first()).toBeVisible();
-    await expect(page.getByText(/4:00\s?PM/).first()).toBeVisible();
+  test('dates and times follow the language', async ({ page, request }) => {
+    // Clinics start without hours, so the test publishes some for one clinic.
+    const admin = await adminRequest(request);
+    const { items } = await admin.get('/api/admin/clinics');
+    const schedule = `/api/admin/clinics/${items[0].id}/schedule`;
+    await admin.put(schedule, { ranges: [{ dayOfWeek: 6, startTime: '16:00', endTime: '21:00' }] });
+    try {
+      await page.goto('/clinics');
+      await expect(page.getByText('السبت').first()).toBeVisible();
+      await page.getByRole('button', { name: /English/ }).click();
+      await expect(page.getByText('Saturday').first()).toBeVisible();
+      await expect(page.getByText(/4:00\s?PM/).first()).toBeVisible();
+    } finally {
+      await admin.put(schedule, { ranges: [] });
+    }
   });
 });
 

@@ -20,7 +20,8 @@ const EMPTY_PATIENT = { patientName: '', phone: '', age: '', notes: '' };
 // The slot was taken or became unavailable while the patient was filling the form.
 const isSlotError = (error) => [400, 409].includes(error.status) && !error.fields;
 
-export const BookingWizard = () => {
+// `clinics` are the clinics taking online bookings (at least one).
+export const BookingWizard = ({ clinics }) => {
   const { t } = useI18n();
   const format = useFormat();
   const [searchParams] = useSearchParams();
@@ -76,7 +77,7 @@ export const BookingWizard = () => {
         summary={clinic && clinicLabel(clinic)}
         onEdit={() => select('clinic', null)}
       >
-        <ClinicStep preselectedId={preselectedClinicId} onSelect={selectClinic} />
+        <ClinicStep clinics={clinics} preselectedId={preselectedClinicId} onSelect={selectClinic} />
       </WizardStep>
 
       <WizardStep

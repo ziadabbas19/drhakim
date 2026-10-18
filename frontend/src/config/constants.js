@@ -35,7 +35,7 @@ export const OPTION_GROUPS = Object.freeze({
   bookingStatus: Object.values(BOOKING_STATUS),
   dayOffReason: ['vacation', 'surgery', 'holiday'],
   role: ['owner', 'staff'],
-  serviceIcon: ['throat', 'nose', 'sinus', 'ear', 'hearing', 'voice', 'child', 'stethoscope'],
+  serviceIcon: ['throat', 'nose', 'sinus', 'ear', 'hearing', 'voice', 'child', 'surgery', 'stethoscope'],
   surgeryCategory: ['nose', 'ear', 'throat'],
   reviewStatus: Object.values(REVIEW_STATUS),
 });
