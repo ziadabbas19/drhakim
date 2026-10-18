@@ -31,6 +31,9 @@
   --color-primary-ink: #1c6878;
   --color-primary-line: #b0eaec;
 
+  /* The gold of the logo, for thin decorative lines only: never for text, buttons, or links. */
+  --color-accent: #caa66e;
+
   /* Status */
   --color-success: #047857;
   --color-success-soft: #d1fae5;
@@ -97,6 +100,8 @@
     --color-primary-faint: #102a2f;
     --color-primary-ink: #7ad8de;
     --color-primary-line: #22525a;
+
+    --color-accent: #d7b985;
 
     --color-success: #34d399;
     --color-success-soft: #0f2e25;

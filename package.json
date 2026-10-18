@@ -18,7 +18,8 @@
     "test:api": "npm test --prefix backend",
     "test:web": "npm test --prefix frontend",
     "test:e2e": "playwright test --config e2e/playwright.config.js --project=e2e",
-    "screenshots": "playwright test --config e2e/playwright.config.js --project=screenshots"
+    "screenshots": "playwright test --config e2e/playwright.config.js --project=screenshots",
+    "build:icons": "node scripts/build-icons.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",

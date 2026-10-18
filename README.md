@@ -95,7 +95,7 @@ The seed contains only details the doctor has confirmed (`backend/src/seeders/co
 
 - **Languages.** The switch in the navbar toggles Arabic (default) and English and is remembered on the device. It sets `<html lang dir>`, the page title, and the description and social tags. All interface text lives in `frontend/src/i18n/ar.js` and `frontend/src/i18n/en.js`, which share the same keys (`npm test --prefix frontend` checks this). Static content that is not managed from the dashboard (the doctor's name and title, home page highlights, the Sheikh Zayed Specialized Hospital evening clinic, booking notes) is in `frontend/src/config/content.js`.
 - **Bilingual content.** Clinics, services, contact notes, the About page, and image alt text have Arabic and English versions, edited side by side in the dashboard. Arabic is required, English is optional and falls back to Arabic when empty. The API returns one language for public requests (`?lang=ar|en` or the `Accept-Language` header, Arabic by default) and both languages to the dashboard. API messages, including validation errors, also follow the requested language.
-- **Themes.** The navbar switch offers light, dark, and "match device" (the default). Colors are defined only in `frontend/src/styles/tokens.css`, once per theme; components use the token names (`bg-surface`, `text-ink-muted`, …). The saved theme and language are applied by a small script in the page head before anything is drawn, so there is no flash.
+- **Themes.** The navbar switch offers light, dark, and "match device" (the default). Colors are defined only in `frontend/src/styles/tokens.css`, once per theme; components use the token names (`bg-surface`, `text-ink-muted`, …). The logo's gold is the `accent` token, used only for thin decorative lines (under section labels and around the logo tile), never for text or buttons. The saved theme and language are applied by a small script in the page head before anything is drawn, so there is no flash.
 - **Motion.** Section reveals, staggered cards, page transitions, dialogs, and hover and press feedback all come from `frontend/src/styles/motion.css` and the components in `frontend/src/motion/`. Only `transform` and `opacity` are animated, sideways movement follows the reading direction, and everything is switched off for visitors who prefer reduced motion.
 
 ## Images and Cloudinary
@@ -114,6 +114,15 @@ To set up Cloudinary:
 3. Restart the API. The API refuses to start with `STORAGE_PROVIDER=cloudinary` if any of the three values is missing.
 
 Each image remembers where it was stored, so images uploaded during development are not moved to Cloudinary automatically; upload the real photos from the production dashboard, or run the photo import with the production settings.
+
+## Logo and icons
+
+`npm run build:icons` (from the project root) makes the brand images from `images-source/logo.png`; its outputs are committed, so it only needs to run again when the logo changes:
+
+- `frontend/src/assets/logo.png`: the logo on a transparent background, cropped with a little padding, 1024 px wide (any white background is removed, with the white un-mixed from the soft edges so no light fringe is left), and `logo-mark.webp`, the size shown next to the doctor's name in the navbar and footer. In the dark theme and in the footer it sits on a light tile so the dark teal letters stay readable.
+- `frontend/public/`: `favicon.ico` (16, 32, and 48 px), `favicon-32.png`, `favicon-192.png`, `favicon-512.png`, and `apple-touch-icon.png` (180 px, a full square, as iOS rounds the corners itself), each on a light tile so the icon shows on dark browser tabs. At 16 and 32 px the logo's fine strokes blur together, so those sizes show a simplified mark: the letters HA in a heavy weight of the site's font, in the logo's teal.
+- `frontend/public/site.webmanifest`, with the 192 and 512 px icons and the site name from `frontend/src/config/content.js`.
+- `frontend/public/og-image.png` (1200 × 630), the image shown when the site is shared: the logo, the doctor's name, and "أخصائي أنف وأذن وحنجرة", in the brand colours and the Cairo font.
 
 ## Importing the doctor's photos
 
@@ -182,6 +191,7 @@ npm run import:images
 | root | `npm test` | Run the API, frontend, and browser tests |
 | root | `npm run test:e2e` | Run the browser tests only |
 | root | `npm run import:images` | Add the doctor's photos from `images-source/` (see [Importing the doctor's photos](#importing-the-doctors-photos)) |
+| root | `npm run build:icons` | Make the logo files, favicons, web manifest, and share image from `images-source/logo.png` (see [Logo and icons](#logo-and-icons)) |
 | root | `npm run screenshots` | Save mobile and desktop screenshots in both themes and languages to `e2e/screenshots`, without and then with published reviews |
 | backend | `npm run dev` | Run the API with auto-restart |
 | backend | `npm start` | Run the API in production mode |
@@ -195,7 +205,7 @@ npm run import:images
 ## Tests
 
 - **API tests** (`npm test --prefix backend`) start the API against a separate database, `DB_NAME` + `_test` (or `TEST_DATABASE_URL`), which is created automatically if your database user may create databases. Before each run it is rebuilt from the migrations, including rolling the latest migration back and forward again, and filled with the seeded content and two test accounts. They also check that none of the removed sample facts is left in the seeds, the site content, the translations, the page tags, or the structured data, that the sample-content migration keeps anything edited, and that the photo import can run twice without creating copies. The tests delete everything in that database and refuse to run against any database whose name does not end in `_test`, so your development data is never touched. Images go to a temporary folder, and Cloudinary is tested with a simulated server.
-- **Frontend tests** (`npm test --prefix frontend`, Vitest) check that both translation files have the same keys and placeholders and that every key used in the code exists. They also render the site in a simulated browser with made-up API replies (empty content, missing lists, failed or malformed replies) to make sure a page never goes blank: missing content shows a short "will be added soon" message, and a part of a page that fails shows a message with a reload button while the rest of the page keeps working.
+- **Frontend tests** (`npm test --prefix frontend`, Vitest) check that both translation files have the same keys and placeholders and that every key used in the code exists, and that the icons, manifest, and share image exist at their sizes and are linked from the page. They also render the site in a simulated browser with made-up API replies (empty content, missing lists, failed or malformed replies) to make sure a page never goes blank: missing content shows a short "will be added soon" message, and a part of a page that fails shows a message with a reload button while the rest of the page keeps working.
 - **Browser tests** (`npm run test:e2e` from the root) build the website and run it against a fresh test database on ports 5055 (API) and 5175 (website). They first open the home and About pages exactly as `npm run seed` leaves them, then cover the language and theme switches, motion and reduced motion, the media library, the About page editing, submitting and moderating a review through to the home page, and automated color-contrast checks in both themes. Install the browser once with `npx playwright install chromium`.
 
 ## Roles and permissions

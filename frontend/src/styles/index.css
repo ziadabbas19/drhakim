@@ -2,6 +2,9 @@
 @import './tokens.css';
 @import './motion.css';
 
+/* `dark:` follows the theme chosen on the site (see src/config/preferences.js), not only the device. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
 @theme {
   /* Self-hosted, split by script, so a page loads only the Arabic or Latin glyphs it uses. */
   --font-sans: 'Cairo Variable', ui-sans-serif, system-ui, 'Segoe UI', Tahoma, sans-serif;
